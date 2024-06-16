@@ -33,7 +33,7 @@ public class FilmController {
 
     @PostMapping
     public Film create(@RequestBody Film film) {
-        log.info("Создание фильма: {}", film );
+        log.info("Создание фильма: {}", film);
         validationService.validate4Create(film);
         film.setId(getNextId());
         films.put(film.getId(), film);
