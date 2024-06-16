@@ -20,11 +20,11 @@ public class ValidationFilmService implements ValidationService<Film> {
 
     @Override
     public void validate4Update(Film film) {
-        ValidateId(film);
+        validateId(film);
         validate4Create(film);
     }
 
-    private void ValidateId(Film film) {
+    private void validateId(Film film) {
         if (film.getId() == null) {
             throw new ValidationException("Id должен быть указан.");
         }
