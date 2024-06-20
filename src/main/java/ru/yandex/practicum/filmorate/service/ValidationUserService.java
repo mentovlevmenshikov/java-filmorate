@@ -44,7 +44,7 @@ public class ValidationUserService implements ValidationService<User> {
 
     private void validateLogin(User user) {
         String login = user.getLogin();
-        if (login == null || login.isBlank()) {
+        if (login == null || login.isEmpty() || login.contains(" ")) {
             throw new ValidationException("Логин не может быть пустым или содержать пробелы.");
         }
     }

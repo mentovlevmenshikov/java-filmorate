@@ -7,26 +7,22 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.service.ValidationService;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 
 @RestController
 @RequestMapping("/users")
 @Slf4j
-public class UserController {
-    private final Map<Long, User> users = new HashMap<>();
+public class UserController extends Controller<User> {
     private final ValidationService<User> validationService;
-    private long counterId = 0;
 
     public UserController(ValidationService<User> validationService) {
         this.validationService = validationService;
     }
 
     @GetMapping
-    public Collection<User> getAllUsers() {
+    public Collection<User> getAll() {
         log.info("Запрос всех пользователей");
-        Collection<User> allUsers = users.values();
+        Collection<User> allUsers = models.values();
         log.info("Возврат пользователей в кол-ве: {}", allUsers.size());
         return allUsers;
     }
@@ -37,7 +33,7 @@ public class UserController {
         preSetFields(user);
         validationService.validate4Create(user);
         user.setId(getNextId());
-        users.put(user.getId(), user);
+        models.put(user.getId(), user);
         log.info("Создан пользователь: {}", user);
         return user;
     }
@@ -57,16 +53,12 @@ public class UserController {
     }
 
     private User find(User user) {
-        User findedUser = users.get(user.getId());
+        User findedUser = models.get(user.getId());
         if (findedUser == null) {
             throw new NotFoundException(String.format("Пользователь с id = %s не найден.", user.getId()));
         }
 
         return findedUser;
-    }
-
-    private long getNextId() {
-        return ++counterId;
     }
 
     private void preSetFields(User user) {
