@@ -35,6 +35,8 @@ public class UserService extends ModelService<User> {
     }
 
     public Collection<User> getFriends(long userId) {
+        final User user = storage.get(userId)
+                .orElseThrow(() -> new NotFoundException("User not found with " + userId));
         return friendStorage.getFriends(userId);
     }
 

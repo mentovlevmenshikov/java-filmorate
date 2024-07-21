@@ -25,7 +25,7 @@ public class InMemoryUserStorage extends InMemoryModelStorage<User> implements  
         userFriendIds.remove(friend.getId());
 
         Set<Long> friendFriendIds = userFriends.computeIfAbsent(friend.getId(), id -> new HashSet<>());
-        friendFriendIds.add(friend.getId());
+        friendFriendIds.remove(user.getId());
     }
 
     @Override
