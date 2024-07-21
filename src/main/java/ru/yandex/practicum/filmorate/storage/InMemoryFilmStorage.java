@@ -25,7 +25,7 @@ public class InMemoryFilmStorage extends InMemoryModelStorage<Film> implements L
         if (filmLikeUserIds.remove(user.getId())) {
             film.setCountLikes(filmLikeUserIds.size());
             if (film.getCountLikes() == 0) {
-                filmUserLikes.remove(film.getId());
+                filmUserLikes.remove(film);
             }
         }
     }
@@ -35,12 +35,10 @@ public class InMemoryFilmStorage extends InMemoryModelStorage<Film> implements L
         TreeSet<Film> filmsSortByLikes = new TreeSet<>(Comparator.comparing(Film::getCountLikes, Comparator.reverseOrder())
                 .thenComparing(Film::getId));
         filmsSortByLikes.addAll(filmUserLikes.keySet());
-        int countPopularFilm = count > filmsSortByLikes.size() ? filmsSortByLikes.size() : count;
+        int countPopularFilm = Math.min(count, filmsSortByLikes.size());
         Collection<Film> popularFilms = new ArrayList<>(countPopularFilm);
-        Iterator<Film> itr = filmsSortByLikes.iterator();
-        while (itr.hasNext()) {
-            Film element = itr.next();
-            popularFilms.add(element);
+        for (Film film : filmsSortByLikes) {
+            popularFilms.add(film);
             if (popularFilms.size() == countPopularFilm) {
                 break;
             }

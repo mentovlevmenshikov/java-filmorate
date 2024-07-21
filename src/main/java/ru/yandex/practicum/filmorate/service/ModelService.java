@@ -17,20 +17,17 @@ public class ModelService<T> implements StorageService<T> {
 
     @Override
     public T get(long id) {
-        final T t = storage.get(id)
+        return storage.get(id)
                 .orElseThrow(() -> new NotFoundException("Сущность с id " + id + " не найдена"));
-        return t;
     }
 
     @Override
     public T create(T model) {
-        T created = storage.create(model);
-        return created;
+        return storage.create(model);
     }
 
     @Override
     public T update(T model) {
-        T updated = storage.update(model);
-        return updated;
+        return storage.update(model);
     }
 }
