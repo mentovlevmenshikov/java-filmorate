@@ -9,13 +9,14 @@ import ru.yandex.practicum.filmorate.model.validator.RealiseDateConstraint;
 import ru.yandex.practicum.filmorate.model.validator.Update;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 /**
  * Film.
  */
 
 @Data
-public class Film {
+public class Film implements Model {
     @NotNull(groups = Update.class)
     private Long id;
     @NotBlank(message = "Название не может быть пустым (анотация)")
@@ -26,4 +27,18 @@ public class Film {
     private LocalDate releaseDate;
     @Positive(message = "Продолжительность фильма должна быть положительным числом (анотация)")
     private Long duration;
+    private int countLikes = 0;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Film film = (Film) o;
+        return Objects.equals(id, film.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
 }
