@@ -2,11 +2,12 @@ package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.validator.Update;
+import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.ValidationService;
 
 import java.util.Collection;
@@ -15,50 +16,71 @@ import java.util.Collection;
 @RequestMapping("/films")
 @Slf4j
 public class FilmController extends Controller<Film> {
-    private final ValidationService<Film> validationService;
-    private long counterId = 0;
 
+    private final FilmService filmService;
 
-    public FilmController(ValidationService<Film> validationService) {
-        this.validationService = validationService;
+    public FilmController(ValidationService<Film> validationService, FilmService filmService) {
+        super(validationService, filmService);
+        this.filmService = filmService;
     }
 
+    @Override
     @GetMapping
     public Collection<Film> getAll() {
         log.info("Запрос всех фильмов");
-        Collection<Film> allFilms = models.values();
+        Collection<Film> allFilms = modelService.getAll();
         log.info("Возврат фильмов в кол-ве: {}", allFilms.size());
         return allFilms;
     }
 
+    @Override
+    @GetMapping("/{id}")
+    public Film get(@PathVariable long id) {
+        log.info("Запрос фильма с id: {}", id);
+        Film film = modelService.get(id);
+        log.info("Возврат фильма: {}", film);
+        return film;
+    }
+
+    @Override
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public Film create(@RequestBody @Valid Film film) {
         log.info("Создание фильма: {}", film);
         validationService.validate4Create(film);
-        film.setId(getNextId());
-        models.put(film.getId(), film);
-        log.info("Создан фильм: {}", film);
-        return film;
+        Film filmCreated = modelService.create(film);
+        log.info("Создан фильм: {}", filmCreated);
+        return filmCreated;
     }
 
     @PutMapping
     public Film update(@RequestBody @Validated(Update.class) Film film) {
         log.info("Обновление фильма: {}", film);
         validationService.validate4Update(film);
-        Film film4Update = find(film);
-        film4Update.setName(film.getName());
-        film4Update.setDescription(film.getDescription());
-        film4Update.setReleaseDate(film.getReleaseDate());
-        film4Update.setDuration(film.getDuration());
-        log.info("Обновленный фильм: {}", film4Update);
-        return film4Update;
+        Film updated = modelService.update(film);
+        log.info("Обновленный фильм: {}", updated);
+        return updated;
     }
 
-    private Film find(Film film) {
-       Film findedFilm = models.get(film.getId());
-       if (findedFilm == null) {
-           throw new NotFoundException(String.format("Фильм с id = %s не найден.", film.getId()));
-       }
-       return findedFilm;
+    @PutMapping("/{id}/like/{userId}")
+    public void addLike(@PathVariable long id, @PathVariable long userId) {
+        log.info("Добавление лайка фильму с id {} пользователем {}", id, userId);
+        int countLikes = filmService.addLike(id, userId);
+        log.info("Кол-во лайков у фильма: {}", countLikes);
+    }
+
+    @DeleteMapping("/{id}/like/{userId}")
+    public void deleteLike(@PathVariable int id, @PathVariable int userId) {
+        log.info("Удаление лайка у фильма с id {} пользователем {}", id, userId);
+        int countLikes = filmService.deleteLike(id, userId);
+        log.info("Кол-во лайков у фильма: {}", countLikes);
+    }
+
+    @GetMapping("/popular")
+    public Collection<Film> getPopular(@RequestParam(defaultValue = "10") int count) {
+        log.info("Получение популярных фильмов в кол-ве: {}", count);
+        Collection<Film> popularFilms = filmService.getPopular(count);
+        log.info("Выбрано популярных фильмов в кол-ве: {}", popularFilms.size());
+        return popularFilms;
     }
 }
