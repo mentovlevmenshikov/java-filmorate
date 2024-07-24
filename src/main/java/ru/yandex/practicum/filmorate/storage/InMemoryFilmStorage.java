@@ -5,7 +5,6 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Component
 public class InMemoryFilmStorage extends InMemoryModelStorage<Film> implements LikeStorage {
@@ -37,6 +36,6 @@ public class InMemoryFilmStorage extends InMemoryModelStorage<Film> implements L
                 .sorted(Comparator.comparing(Film::getCountLikes, Comparator.reverseOrder())
                         .thenComparing(Film::getId))
                 .limit(count)
-                .collect(Collectors.toSet());
+                .toList();
     }
 }
