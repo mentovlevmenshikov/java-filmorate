@@ -19,7 +19,7 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ErrorResponse handleException(final Exception e) {
+    public ErrorResponse handleException(final Throwable e) {
         log.error("Error unknown:", e);
         return new ErrorResponse(e, showStackTraceInResponse);
     }

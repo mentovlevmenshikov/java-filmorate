@@ -58,15 +58,15 @@ public class UserController extends Controller<User> {
         preSetFields(user);
         validationService.validate4Update(user);
         User updated = modelService.update(user);
-       log.info("Обновленный пользователь: {}", updated);
+        log.info("Обновленный пользователь: {}", updated);
         return updated;
     }
 
     @PutMapping("/{id}/friends/{friendId}")
     public void addFriend(@PathVariable long id, @PathVariable long friendId) {
         log.info("Добавление пользователю с id {} друга c id {}", id, friendId);
-       userService.addFriend(id, friendId);
-       log.info("Друг успешно добавлен");
+        userService.addFriend(id, friendId);
+        log.info("Друг успешно добавлен");
     }
 
     @DeleteMapping("/{id}/friends/{friendId}")
