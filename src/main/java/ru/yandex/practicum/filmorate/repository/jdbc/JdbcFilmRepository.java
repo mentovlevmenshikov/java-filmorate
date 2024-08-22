@@ -54,7 +54,7 @@ public class JdbcFilmRepository extends JdbcBaseRepository<Film> implements Like
                                 SELECT g.genre_id, g.genre_name
                                 FROM films_genres f JOIN genres g ON f.genre_id = g.genre_id
                                 WHERE f.film_id = :film_id
-                                ORDER BY G.GENRE_NAME
+                                ORDER BY G.GENRE_ID
                           """;
         MapSqlParameterSource genreParams = new MapSqlParameterSource("film_id", Objects.requireNonNull(film).getId());
         film.setGenres(new LinkedHashSet<>(jdbc.query(sqlGenre, genreParams, genreRowMapper)));
@@ -78,7 +78,7 @@ public class JdbcFilmRepository extends JdbcBaseRepository<Film> implements Like
         String sqlFilmsGenres = """
                 SELECT f.film_id, g.genre_id, g.genre_name
                 FROM films_genres f JOIN genres g ON f.genre_id = g.genre_id
-                ORDER BY G.GENRE_NAME
+                ORDER BY G.GENRE_ID
                 """;
         Map<Long, LinkedHashSet<Genre>> filmsGenres = jdbc.query(sqlFilmsGenres, filmsGenresExtractor);
         if (filmsGenres != null && !filmsGenres.isEmpty()) {
