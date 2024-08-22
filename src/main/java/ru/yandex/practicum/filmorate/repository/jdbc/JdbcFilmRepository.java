@@ -81,8 +81,7 @@ public class JdbcFilmRepository extends JdbcBaseRepository<Film> implements Like
                 ORDER BY G.GENRE_NAME
                 """;
         Map<Long, LinkedHashSet<Genre>> filmsGenres = jdbc.query(sqlFilmsGenres, filmsGenresExtractor);
-
-        if(filmsGenres != null && !filmsGenres.isEmpty()) {
+        if (filmsGenres != null && !filmsGenres.isEmpty()) {
             films.forEach(film -> {
                 LinkedHashSet<Genre> genres = filmsGenres.get(film.getId());
                 if (genres != null) {
