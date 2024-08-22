@@ -104,7 +104,7 @@ public class JdbcUserRepository extends JdbcBaseRepository<User> implements Frie
     public Collection<User> getCommonFriends(long userId, long otherUserId) {
         String sql = """
                 SELECT u.USER_ID, u.EMAIL, u.LOGIN, u.NAME, u.BIRTHDAY
-                FROM friends f2 JOIN friends f1 ON f1.friend_id = f2.friend_id 
+                FROM friends f2 JOIN friends f1 ON f1.friend_id = f2.friend_id
                                 JOIN users u ON f1.friend_id = u.user_id
                 WHERE f1.user_id = :user_id and f2.user_id = :other_user_id
                 """;

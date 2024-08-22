@@ -46,7 +46,7 @@ public class JdbcMpaRepository extends JdbcBaseRepository<MPA> {
 
     @Override
     public MPA create(MPA model) {
-        String sql = "INSERT INTO mpa (mpa_name) VALUES (:name, :description)";
+        String sql = "INSERT INTO mpa (mpa_name) VALUES (:name)";
         MapSqlParameterSource params = new MapSqlParameterSource();
         params.addValue("name", model.getName());
         KeyHolder keyHolder = new GeneratedKeyHolder();

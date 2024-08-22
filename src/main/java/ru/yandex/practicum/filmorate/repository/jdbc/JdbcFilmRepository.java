@@ -25,10 +25,6 @@ public class JdbcFilmRepository extends JdbcBaseRepository<Film> implements Like
     private final RowMapper<Genre> genreRowMapper;
     private final ResultSetExtractor<Map<Long, LinkedHashSet<Genre>>> filmsGenresExtractor;
 
-
-
-    private final static record FilmsGenresRelation(long film_id, long genre_id) {}
-
     public JdbcFilmRepository(RowMapper<Film> filmRowMapper, RowMapper<Genre> genreRowMapper,
                               ResultSetExtractor<Map<Long, LinkedHashSet<Genre>>> filmsGenresExtractor) {
         super(filmRowMapper);
@@ -40,7 +36,7 @@ public class JdbcFilmRepository extends JdbcBaseRepository<Film> implements Like
     public Optional<Film> getById(long id) {
         String sqlFilm = """
                         SELECT f.film_Id, f.name, f.description, f.release_date, f.duration,
-                               m.mpa_id, m.mpa_name, 
+                               m.mpa_id, m.mpa_name,
                                (SELECT count(*) FROM FILMS_LIKES L WHERE L.FILM_ID = f.FILM_ID) count_likes
                         FROM films f JOIN MPA m ON f.mpa_id = m.mpa_id
                         WHERE f.film_id = :id
@@ -61,7 +57,7 @@ public class JdbcFilmRepository extends JdbcBaseRepository<Film> implements Like
                                 ORDER BY G.GENRE_NAME
                           """;
         MapSqlParameterSource genreParams = new MapSqlParameterSource("film_id", Objects.requireNonNull(film).getId());
-        film.setGenres(new LinkedHashSet<Genre>(jdbc.query(sqlGenre, genreParams, genreRowMapper)));
+        film.setGenres(new LinkedHashSet<>(jdbc.query(sqlGenre, genreParams, genreRowMapper)));
         return Optional.of(film);
     }
 

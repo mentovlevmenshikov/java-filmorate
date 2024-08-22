@@ -34,7 +34,7 @@ public class Film implements Model {
     @NotNull
     private MPA mpa;
     private LinkedHashSet<Genre> genres = new LinkedHashSet<>();
-    private int countLikes = 0;
+    private int countLikes;
 
     @Override
     public boolean equals(Object o) {

@@ -44,7 +44,7 @@ public class GenreController {
         log.info("Создание Genre: {}", genre);
         Genre created = genreService.create(genre);
         log.info("Создан Genre: {}", genre);
-        return genre;
+        return created;
     }
 
     @PutMapping
@@ -52,6 +52,6 @@ public class GenreController {
         log.info("Обновление Genre: {}", genre);
         Genre updated = genreService.update(genre);
         log.info("Обновленный Genre: {}", genre);
-        return genre;
+        return updated;
     }
 }

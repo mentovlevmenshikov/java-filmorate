@@ -45,7 +45,7 @@ public class MpaController {
         log.info("Создание MPA: {}", mpa);
         MPA created = mpaService.create(mpa);
         log.info("Создан MPA: {}", mpa);
-        return mpa;
+        return created;
     }
 
     @PutMapping
@@ -53,6 +53,6 @@ public class MpaController {
         log.info("Обновление MPA: {}", mpa);
         MPA updated = mpaService.update(mpa);
         log.info("Обновленный MPA: {}", mpa);
-        return mpa;
+        return updated;
     }
 }
