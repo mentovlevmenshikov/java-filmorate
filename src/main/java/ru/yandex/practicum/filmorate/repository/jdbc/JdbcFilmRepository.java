@@ -109,7 +109,7 @@ public class JdbcFilmRepository extends JdbcBaseRepository<Film> implements Like
         jdbc.update(sqlInsert, filmParams, keyHolder);
         model.setId(Objects.requireNonNull(keyHolder.getKey()).longValue());
 
-        if (!model.getGenres().isEmpty()) {
+        if (model.getGenres() != null && !model.getGenres().isEmpty()) {
             String queryInsertFilmGenre = "INSERT INTO FILMS_GENRES (FILM_ID, GENRE_ID) VALUES (:film_id, :genre_id);";
             MapSqlParameterSource [] genreFilmParams = new MapSqlParameterSource[model.getGenres().size()];
             int i = 0;
