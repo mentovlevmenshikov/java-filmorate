@@ -17,12 +17,14 @@ class ValidationFilmServiceTest {
 
     @BeforeEach
     void setUp() {
-        film = new Film();
-        film.setId(1L);
-        film.setName("Название фильма");
-        film.setDescription("описание");
-        film.setReleaseDate(LocalDate.now());
-        film.setDuration(30L);
+
+        film = Film.builder()
+                .id(1L)
+                .name("Название фильма")
+                .description("описание")
+                .releaseDate(LocalDate.now())
+                .duration(30L)
+                .build();
     }
 
     private final ValidationService<Film> validationService = new ValidationFilmService();
@@ -46,8 +48,8 @@ class ValidationFilmServiceTest {
     @Test
     @DisplayName("Проверка описания фильма")
     void validateMaxLenDescription() {
-       String description = "-".repeat(201);
-       film.setDescription(description);
+        String description = "-".repeat(201);
+        film.setDescription(description);
         assertThrows(ValidationException.class, () -> validationService.validate4Update(film),
                 "Описание не может быть длиньше 200 символов");
 

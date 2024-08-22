@@ -1,19 +1,20 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.repository.inmemory;
 
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Model;
+import ru.yandex.practicum.filmorate.repository.ModelRepository;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-public class InMemoryModelStorage<T extends Model> implements ModelStorage<T> {
+public class InMemoryModelRepository<T extends Model> implements ModelRepository<T> {
     private long counterId = 0;
     protected final Map<Long, T> models = new HashMap<>();
 
     @Override
-   public Optional<T> get(long id) {
+   public Optional<T> getById(long id) {
        return Optional.ofNullable(models.get(id));
    }
 

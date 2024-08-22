@@ -1,13 +1,14 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.repository.inmemory;
 
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.repository.LikeStorage;
 
 import java.util.*;
 
 @Component
-public class InMemoryFilmStorage extends InMemoryModelStorage<Film> implements LikeStorage {
+public class InMemoryFilmRepository extends InMemoryModelRepository<Film> implements LikeStorage {
 
     protected final Map<Film, Set<Long>> filmUserLikes = new HashMap<>();
 

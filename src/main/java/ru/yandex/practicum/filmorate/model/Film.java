@@ -4,17 +4,20 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
+import lombok.Builder;
 import lombok.Data;
 import ru.yandex.practicum.filmorate.model.validator.RealiseDateConstraint;
 import ru.yandex.practicum.filmorate.model.validator.Update;
 
 import java.time.LocalDate;
+import java.util.LinkedHashSet;
 import java.util.Objects;
 
 /**
  * Film.
  */
 
+@Builder
 @Data
 public class Film implements Model {
     @NotNull(groups = Update.class)
@@ -23,10 +26,14 @@ public class Film implements Model {
     private String name;
     @Size(max = 200, message = "Максимальная длина описания 200")
     private String description;
+    @NotNull
     @RealiseDateConstraint()
     private LocalDate releaseDate;
     @Positive(message = "Продолжительность фильма должна быть положительным числом (анотация)")
     private Long duration;
+    @NotNull
+    private MPA mpa;
+    private LinkedHashSet<Genre> genres = new LinkedHashSet<>();
     private int countLikes = 0;
 
     @Override
@@ -41,4 +48,5 @@ public class Film implements Model {
     public int hashCode() {
         return Objects.hash(id);
     }
+
 }
