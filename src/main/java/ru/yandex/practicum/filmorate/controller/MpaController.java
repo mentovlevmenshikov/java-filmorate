@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -15,13 +15,10 @@ import java.util.Collection;
 @RestController
 @RequestMapping("/mpa")
 @Slf4j
+@RequiredArgsConstructor
 public class MpaController {
 
     private final MpaService mpaService;
-
-    public MpaController(MpaService mpaService) {
-        this.mpaService = mpaService;
-    }
 
     @GetMapping
     public Collection<MPA> getAll() {
@@ -32,7 +29,7 @@ public class MpaController {
     }
 
     @GetMapping("/{id}")
-    public MPA getById(@NotNull @PathVariable long id) {
+    public MPA getById(@PathVariable long id) {
         log.info("Запрос MPA с id: {}", id);
         MPA mpa = mpaService.get(id);
         log.info("Возврат MPA: {}", mpa);

@@ -1,7 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -15,12 +15,9 @@ import java.util.Collection;
 @Slf4j
 @RestController
 @RequestMapping("/genres")
+@RequiredArgsConstructor
 public class GenreController {
     private final GenreService genreService;
-
-    public GenreController(GenreService genreService) {
-        this.genreService = genreService;
-    }
 
     @GetMapping
     public Collection<Genre> getAll() {
@@ -31,7 +28,7 @@ public class GenreController {
     }
 
     @GetMapping("/{id}")
-    public Genre getById(@NotNull @PathVariable long id) {
+    public Genre getById(@PathVariable long id) {
         log.info("Запрос Genre с id: {}", id);
         Genre genre = genreService.get(id);
         log.info("Возврат Genre: {}", genre);

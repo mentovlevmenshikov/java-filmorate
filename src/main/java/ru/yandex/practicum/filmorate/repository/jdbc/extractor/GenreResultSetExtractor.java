@@ -1,5 +1,6 @@
 package ru.yandex.practicum.filmorate.repository.jdbc.extractor;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
@@ -11,14 +12,11 @@ import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+@RequiredArgsConstructor
 @Component
 public class GenreResultSetExtractor implements ResultSetExtractor<Map<Long, Genre>> {
 
     private final RowMapper<Genre> genreRowMapper;
-
-    public GenreResultSetExtractor(RowMapper<Genre> genreRowMapper) {
-        this.genreRowMapper = genreRowMapper;
-    }
 
     @Override
     public Map<Long, Genre> extractData(ResultSet rs) throws SQLException, DataAccessException {

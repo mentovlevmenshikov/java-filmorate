@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.repository.jdbc;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Primary;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.RowMapper;
@@ -18,7 +17,6 @@ import ru.yandex.practicum.filmorate.repository.LikeStorage;
 import java.util.*;
 
 @Repository
-@Primary
 @Slf4j
 public class JdbcFilmRepository extends JdbcBaseRepository<Film> implements LikeStorage {
 
@@ -191,16 +189,27 @@ public class JdbcFilmRepository extends JdbcBaseRepository<Film> implements Like
                      JOIN MPA M ON F.MPA_ID = M.MPA_ID;
                     """;
         Collection<Film> films = jdbc.query(sql, Map.of("count", count), rowMapper);
-        String sqlGenre = """
-                                SELECT g.genre_id, g.genre_name
-                                FROM films_genres f JOIN genres g ON f.genre_id = g.genre_id
-                                WHERE f.film_id = :film_id
-                                ORDER BY G.GENRE_NAME
-                          """;
-        for (Film film : films) {
-            MapSqlParameterSource genreParams = new MapSqlParameterSource("film_id", film.getId());
-            film.setGenres(new LinkedHashSet<>(jdbc.query(sqlGenre, genreParams, genreRowMapper)));
+
+        if (films.isEmpty()) {
+            return Collections.emptyList();
         }
+
+        String sqlFilmsGenres = """
+                SELECT f.film_id, g.genre_id, g.genre_name
+                FROM films_genres f JOIN genres g ON f.genre_id = g.genre_id
+                ORDER BY G.GENRE_ID
+                """;
+        Map<Long, LinkedHashSet<Genre>> filmsGenres = jdbc.query(sqlFilmsGenres, filmsGenresExtractor);
+
+        if (filmsGenres != null && !filmsGenres.isEmpty()) {
+            films.forEach(film -> {
+                LinkedHashSet<Genre> genres = filmsGenres.get(film.getId());
+                if (genres != null) {
+                    film.setGenres(genres);
+                }
+            });
+        }
+
         return films;
     }
 }

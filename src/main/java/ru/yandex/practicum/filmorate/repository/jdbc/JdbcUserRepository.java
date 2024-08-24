@@ -1,7 +1,6 @@
 package ru.yandex.practicum.filmorate.repository.jdbc;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Primary;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -18,7 +17,6 @@ import java.util.Objects;
 import java.util.Optional;
 
 @Repository
-@Primary
 @Slf4j
 public class JdbcUserRepository extends JdbcBaseRepository<User> implements FriendStorage  {
 
