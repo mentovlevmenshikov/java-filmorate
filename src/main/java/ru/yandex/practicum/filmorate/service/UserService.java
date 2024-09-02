@@ -4,8 +4,8 @@ package ru.yandex.practicum.filmorate.service;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.FriendStorage;
-import ru.yandex.practicum.filmorate.storage.ModelStorage;
+import ru.yandex.practicum.filmorate.repository.FriendStorage;
+import ru.yandex.practicum.filmorate.repository.ModelRepository;
 
 import java.util.Collection;
 
@@ -13,29 +13,29 @@ import java.util.Collection;
 public class UserService extends ModelService<User> {
     private final FriendStorage friendStorage;
 
-    public UserService(ModelStorage<User> storage) {
+    public UserService(ModelRepository<User> storage) {
         super(storage);
-        friendStorage = (FriendStorage)storage;
+       friendStorage = (FriendStorage)storage;
     }
 
     public void addFriend(long userId, long friendId) {
-        final User user = storage.get(userId)
+        final User user = repository.getById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found with " + userId));
-        final User friend = storage.get(friendId)
+        final User friend = repository.getById(friendId)
                 .orElseThrow(() -> new NotFoundException("Friend not found with " + friendId));
         friendStorage.addFriend(user, friend);
     }
 
     public void deleteFriend(long userId, long friendId) {
-        final User user = storage.get(userId)
+        final User user = repository.getById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found with " + userId));
-        final User friend = storage.get(friendId)
+        final User friend = repository.getById(friendId)
                 .orElseThrow(() -> new NotFoundException("Friend not found with " + friendId));
-        friendStorage.deleteFriend(user, friend);
+       friendStorage.deleteFriend(user, friend);
     }
 
     public Collection<User> getFriends(long userId) {
-        final User user = storage.get(userId)
+        final User user = repository.getById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found with " + userId));
         return friendStorage.getFriends(userId);
     }

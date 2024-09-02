@@ -18,7 +18,7 @@ class ValidationUserServiceTest {
 
     @BeforeEach
     void setUp() {
-        user = new User();
+        user = User.builder().build();
         user.setId(1L);
         user.setLogin("login");
         user.setEmail("email@ya.ru");

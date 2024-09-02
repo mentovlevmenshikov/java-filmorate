@@ -1,11 +1,11 @@
-package ru.yandex.practicum.filmorate.storage;
+package ru.yandex.practicum.filmorate.repository;
 
 import java.util.Collection;
 import java.util.Optional;
 
-public interface ModelStorage<T> {
+public interface ModelRepository<T> {
 
-    Optional<T> get(long id);
+    Optional<T> getById(long id);
 
     Collection<T> getAll();
 
