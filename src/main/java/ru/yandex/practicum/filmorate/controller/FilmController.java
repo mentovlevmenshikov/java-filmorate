@@ -62,6 +62,14 @@ public class FilmController extends Controller<Film> {
         return updated;
     }
 
+    @Override
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable long id) {
+        log.info("Удаление фильма с id: {}", id);
+        modelService.delete(id);
+        log.info("Фильм удален");
+    }
+
     @PutMapping("/{id}/like/{userId}")
     public void addLike(@PathVariable long id, @PathVariable long userId) {
         log.info("Добавление лайка фильму с id {} пользователем {}", id, userId);

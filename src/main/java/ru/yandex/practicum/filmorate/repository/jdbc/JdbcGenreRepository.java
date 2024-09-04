@@ -62,4 +62,8 @@ public class JdbcGenreRepository extends JdbcBaseRepository<Genre> {
         }
         return model;
     }
+
+    @Override
+    public void delete(long id) {
+    }
 }

@@ -79,6 +79,17 @@ public class JdbcUserRepository extends JdbcBaseRepository<User> implements Frie
     }
 
     @Override
+    public void delete(long id) {
+        String sqlDelete = "DELETE FROM users WHERE user_id = :id";
+        MapSqlParameterSource params = new MapSqlParameterSource("id", id);
+        try {
+            jdbc.update(sqlDelete, params);
+        } catch (EmptyResultDataAccessException e) {
+            log.warn("User with id {} not found", id);
+        }
+    }
+
+    @Override
     public void addFriend(User user, User friend) {
         String sql = "INSERT INTO friends (user_id, friend_id, status) VALUES (:user_id, :friend_id, :status);";
         jdbc.update(sql, Map.of("user_id", user.getId(), "friend_id", friend.getId(), "status", 0));

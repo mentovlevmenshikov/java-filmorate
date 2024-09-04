@@ -62,6 +62,14 @@ public class UserController extends Controller<User> {
         return updated;
     }
 
+    @Override
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable long id) {
+        log.info("Удаление пользователя с id: {}", id);
+        modelService.delete(id);
+        log.info("Пользователь удален");
+    }
+
     @PutMapping("/{id}/friends/{friendId}")
     public void addFriend(@PathVariable long id, @PathVariable long friendId) {
         log.info("Добавление пользователю с id {} друга c id {}", id, friendId);
