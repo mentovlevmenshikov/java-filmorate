@@ -44,12 +44,12 @@ class JdbcFilmRepositoryTest {
         filmRepository.addLike(Film.builder().id(3L).build(), User.builder().id(2L).build());
         filmRepository.deleteLike(Film.builder().id(3L).build(), User.builder().id(1L).build());
         List<Film> popularFilms = (List<Film>) filmRepository.getPopularFilms(4);
-        int likes_count = popularFilms.stream().filter(film -> film.getId().equals(3L)).map(Film::getCountLikes).findFirst().get();
-        assertEquals(1, likes_count);
+        int likesCount = popularFilms.stream().filter(film -> film.getId().equals(3L)).map(Film::getCountLikes).findFirst().get();
+        assertEquals(1, likesCount);
         filmRepository.deleteLike(Film.builder().id(3L).build(), User.builder().id(2L).build());
         popularFilms = (List<Film>) filmRepository.getPopularFilms(4);
-        likes_count = popularFilms.stream().filter(film -> film.getId().equals(3L)).map(Film::getCountLikes).findFirst().get();
-        assertEquals(0, likes_count);
+        likesCount = popularFilms.stream().filter(film -> film.getId().equals(3L)).map(Film::getCountLikes).findFirst().get();
+        assertEquals(0, likesCount);
     }
 
     @Test
