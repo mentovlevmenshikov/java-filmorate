@@ -12,13 +12,14 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.repository.DeleteStorage;
 import ru.yandex.practicum.filmorate.repository.LikeStorage;
 
 import java.util.*;
 
 @Repository
 @Slf4j
-public class JdbcFilmRepository extends JdbcBaseRepository<Film> implements LikeStorage {
+public class JdbcFilmRepository extends JdbcBaseRepository<Film> implements LikeStorage, DeleteStorage {
 
     private final RowMapper<Genre> genreRowMapper;
     private final ResultSetExtractor<Map<Long, LinkedHashSet<Genre>>> filmsGenresExtractor;

@@ -67,8 +67,4 @@ public class JdbcMpaRepository extends JdbcBaseRepository<MPA> {
         }
         return model;
     }
-
-    @Override
-    public void delete(long id) {
-    }
 }

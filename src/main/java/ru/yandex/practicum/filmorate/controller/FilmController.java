@@ -66,7 +66,7 @@ public class FilmController extends Controller<Film> {
     @DeleteMapping("/{id}")
     public void delete(@PathVariable long id) {
         log.info("Удаление фильма с id: {}", id);
-        modelService.delete(id);
+        filmService.delete(id);
         log.info("Фильм удален");
     }
 

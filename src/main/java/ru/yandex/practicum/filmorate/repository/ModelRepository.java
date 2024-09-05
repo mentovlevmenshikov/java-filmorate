@@ -12,6 +12,4 @@ public interface ModelRepository<T> {
     T create(T model);
 
     T update(T model);
-
-    void delete(long id);
 }

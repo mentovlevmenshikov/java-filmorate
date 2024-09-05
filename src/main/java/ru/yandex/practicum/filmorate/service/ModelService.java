@@ -30,9 +30,4 @@ public class ModelService<T> implements StorageService<T> {
     public T update(T model) {
         return repository.update(model);
     }
-
-    @Override
-    public void delete(long id) {
-        repository.delete(id);
-    }
 }

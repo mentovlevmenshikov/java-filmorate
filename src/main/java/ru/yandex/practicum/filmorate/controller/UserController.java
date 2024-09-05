@@ -66,7 +66,7 @@ public class UserController extends Controller<User> {
     @DeleteMapping("/{id}")
     public void delete(@PathVariable long id) {
         log.info("Удаление пользователя с id: {}", id);
-        modelService.delete(id);
+        userService.delete(id);
         log.info("Пользователь удален");
     }
 
