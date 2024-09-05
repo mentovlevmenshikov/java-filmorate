@@ -196,9 +196,10 @@ public class JdbcFilmRepository extends JdbcBaseRepository<Film> implements Like
                          FROM FILMS_LIKES
                          GROUP BY FILM_ID
                          )
-                     LIMIT :count) T ON F.FILM_ID = T.TOP_FILM_ID
-                     JOIN MPA M ON F.MPA_ID = M.MPA_ID
-                     ORDER BY T.COUNT_LIKES DESC;
+                    ) T ON F.FILM_ID = T.TOP_FILM_ID
+                    JOIN MPA M ON F.MPA_ID = M.MPA_ID
+                    ORDER BY T.COUNT_LIKES DESC
+                    LIMIT :count;
                     """;
         Collection<Film> films = jdbc.query(sql, Map.of("count", count), rowMapper);
 
