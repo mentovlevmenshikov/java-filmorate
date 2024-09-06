@@ -4,7 +4,16 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.validator.Update;
 import ru.yandex.practicum.filmorate.service.FilmService;
@@ -90,5 +99,13 @@ public class FilmController extends Controller<Film> {
         Collection<Film> popularFilms = filmService.getPopular(count);
         log.info("Выбрано популярных фильмов в кол-ве: {}", popularFilms.size());
         return popularFilms;
+    }
+
+    @GetMapping("/director/{directorId}")
+    public Collection<Film> getByDirector(@PathVariable long directorId, @RequestParam String sortBy) {
+        log.info("Запрос фильмов по режиссеру с director_id: {}, сортировка {}", directorId, sortBy);
+        Collection<Film> films = filmService.getByDirector(directorId, sortBy);
+        log.info("Возврат фильмов: {}", films);
+        return films;
     }
 }
