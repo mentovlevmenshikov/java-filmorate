@@ -64,7 +64,7 @@ public class FilmService extends ModelService<Film> {
         final Director director = directorModelRepository.getById(directorId)
                 .orElseThrow(() -> new NotFoundException("Director not found with " + directorId));
 
-        if (sortBy == null || sortBy.isEmpty() || sortBy.isBlank()) {
+        if (sortBy == null || sortBy.isBlank()) {
             sortBy = sortFeatures.getFirst();
         }
         if (!sortFeatures.contains(sortBy)) {
