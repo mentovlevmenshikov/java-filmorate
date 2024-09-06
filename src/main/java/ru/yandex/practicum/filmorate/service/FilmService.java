@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.repository.DeleteStorage;
 import ru.yandex.practicum.filmorate.repository.LikeStorage;
 import ru.yandex.practicum.filmorate.repository.ModelRepository;
 
@@ -14,11 +15,13 @@ public class FilmService extends ModelService<Film> {
 
     private final LikeStorage likeStorage;
     private final ModelRepository<User> userModelRepository;
+    private final DeleteStorage deleteStorage;
 
     public FilmService(ModelRepository<Film> filmModelRepository, ModelRepository<User> userModelRepository) {
         super(filmModelRepository);
         likeStorage = (LikeStorage)filmModelRepository;
         this.userModelRepository = userModelRepository;
+        deleteStorage = (DeleteStorage)filmModelRepository;
     }
 
     public int addLike(long id, long userId) {
@@ -41,5 +44,9 @@ public class FilmService extends ModelService<Film> {
 
     public Collection<Film> getPopular(Integer count) {
         return likeStorage.getPopularFilms(count);
+    }
+
+    public void delete(long id) {
+        deleteStorage.delete(id);
     }
 }

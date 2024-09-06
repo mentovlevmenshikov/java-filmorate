@@ -19,4 +19,6 @@ public abstract class Controller<T> {
     public abstract T create(T model);
 
     public abstract T update(T model);
+
+    public abstract void delete(long id);
 }

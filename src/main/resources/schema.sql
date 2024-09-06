@@ -42,13 +42,13 @@ CREATE TABLE IF NOT EXISTS films (
 );
 
 CREATE TABLE IF NOT EXISTS films_genres (
-    film_id BIGINT NOT NULL CONSTRAINT films_genres_film_id_fk REFERENCES films(film_id),
+    film_id BIGINT NOT NULL CONSTRAINT films_genres_film_id_fk REFERENCES films(film_id) ON DELETE CASCADE,
     genre_id BIGINT NOT NULL CONSTRAINT films_genres_genres_id_fk REFERENCES genres(genre_id),
     CONSTRAINT films_genres_film_genres_ids_unique UNIQUE (film_id, genre_id)
 );
 
 CREATE TABLE IF NOT EXISTS films_likes (
-    film_id BIGINT CONSTRAINT films_likes_film_id_fk REFERENCES films(film_id) NOT NULL,
-    user_id BIGINT CONSTRAINT films_likes_user_id_fk REFERENCES users(user_id) NOT NULL,
+    film_id BIGINT CONSTRAINT films_likes_film_id_fk REFERENCES films(film_id) ON DELETE CASCADE NOT NULL,
+    user_id BIGINT CONSTRAINT films_likes_user_id_fk REFERENCES users(user_id) ON DELETE CASCADE NOT NULL,
     CONSTRAINT films_likes_film_user_ids_unique UNIQUE (film_id, user_id)
 );

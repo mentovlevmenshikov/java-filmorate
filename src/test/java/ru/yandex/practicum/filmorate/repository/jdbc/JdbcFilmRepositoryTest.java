@@ -44,10 +44,12 @@ class JdbcFilmRepositoryTest {
         filmRepository.addLike(Film.builder().id(3L).build(), User.builder().id(2L).build());
         filmRepository.deleteLike(Film.builder().id(3L).build(), User.builder().id(1L).build());
         List<Film> popularFilms = (List<Film>) filmRepository.getPopularFilms(4);
-        assertEquals(1,popularFilms.size());
+        int likesCount = popularFilms.stream().filter(film -> film.getId().equals(3L)).map(Film::getCountLikes).findFirst().get();
+        assertEquals(1, likesCount);
         filmRepository.deleteLike(Film.builder().id(3L).build(), User.builder().id(2L).build());
         popularFilms = (List<Film>) filmRepository.getPopularFilms(4);
-        assertEquals(0,popularFilms.size());
+        likesCount = popularFilms.stream().filter(film -> film.getId().equals(3L)).map(Film::getCountLikes).findFirst().get();
+        assertEquals(0, likesCount);
     }
 
     @Test
@@ -55,7 +57,7 @@ class JdbcFilmRepositoryTest {
         filmRepository.addLike(Film.builder().id(1L).build(), User.builder().id(1L).build());
         filmRepository.addLike(Film.builder().id(2L).build(), User.builder().id(2L).build());
         filmRepository.addLike(Film.builder().id(3L).build(), User.builder().id(1L).build());
-        List<Film> popularFilms = (List<Film>) filmRepository.getPopularFilms(3);
+        List<Film> popularFilms = (List<Film>) filmRepository.getPopularFilms(4);
         System.out.println(popularFilms.toString());
         Film actual1 = popularFilms.get(0);
         Film actual2 = popularFilms.get(1);
@@ -63,6 +65,6 @@ class JdbcFilmRepositoryTest {
         assertThat(actual1).isEqualTo(filmRepository.getById(1).get());
         assertThat(actual2).isEqualTo(filmRepository.getById(2).get());
         assertThat(actual3).isEqualTo(filmRepository.getById(3).get());
-        assertThatList(popularFilms).hasSizeBetween(3, 3);
+        assertThatList(popularFilms).hasSizeBetween(4, 4);
     }
 }

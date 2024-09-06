@@ -12,13 +12,14 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.repository.DeleteStorage;
 import ru.yandex.practicum.filmorate.repository.LikeStorage;
 
 import java.util.*;
 
 @Repository
 @Slf4j
-public class JdbcFilmRepository extends JdbcBaseRepository<Film> implements LikeStorage {
+public class JdbcFilmRepository extends JdbcBaseRepository<Film> implements LikeStorage, DeleteStorage {
 
     private final RowMapper<Genre> genreRowMapper;
     private final ResultSetExtractor<Map<Long, LinkedHashSet<Genre>>> filmsGenresExtractor;
@@ -161,6 +162,17 @@ public class JdbcFilmRepository extends JdbcBaseRepository<Film> implements Like
     }
 
     @Override
+    public void delete(long id) {
+        String sqlDelete = "DELETE FROM films WHERE film_id = :id";
+        MapSqlParameterSource filmParams = new MapSqlParameterSource("id", id);
+        try {
+            jdbc.update(sqlDelete, filmParams);
+        } catch (EmptyResultDataAccessException e) {
+            log.warn("Film with id {} not found", id);
+        }
+    }
+
+    @Override
     public void addLike(Film film, User user) {
         String sqlQuery = "INSERT INTO films_likes (film_id, user_id) VALUES (:film_id, :user_id)";
         jdbc.update(sqlQuery, Map.of("film_id", film.getId(), "user_id", user.getId()));
@@ -177,16 +189,17 @@ public class JdbcFilmRepository extends JdbcBaseRepository<Film> implements Like
         String sql = """
                     SELECT FILM_ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, F.MPA_ID,
                     M.MPA_NAME, T.COUNT_LIKES
-                    FROM FILMS F JOIN
+                    FROM FILMS F LEFT JOIN
                     (SELECT TOP_FILM_ID, COUNT_LIKES
                      FROM
                         (SELECT FILM_ID TOP_FILM_ID, COUNT(*) COUNT_LIKES
                          FROM FILMS_LIKES
                          GROUP BY FILM_ID
-                         ORDER BY COUNT_LIKES DESC
                          )
-                     LIMIT :count) T ON F.FILM_ID = T.TOP_FILM_ID
-                     JOIN MPA M ON F.MPA_ID = M.MPA_ID;
+                    ) T ON F.FILM_ID = T.TOP_FILM_ID
+                    JOIN MPA M ON F.MPA_ID = M.MPA_ID
+                    ORDER BY T.COUNT_LIKES DESC
+                    LIMIT :count;
                     """;
         Collection<Film> films = jdbc.query(sql, Map.of("count", count), rowMapper);
 

@@ -9,6 +9,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.repository.DeleteStorage;
 import ru.yandex.practicum.filmorate.repository.FriendStorage;
 
 import java.util.Collection;
@@ -18,7 +19,7 @@ import java.util.Optional;
 
 @Repository
 @Slf4j
-public class JdbcUserRepository extends JdbcBaseRepository<User> implements FriendStorage  {
+public class JdbcUserRepository extends JdbcBaseRepository<User> implements FriendStorage, DeleteStorage {
 
     public JdbcUserRepository(RowMapper<User> userRowMapper) {
         super(userRowMapper);
@@ -76,6 +77,17 @@ public class JdbcUserRepository extends JdbcBaseRepository<User> implements Frie
             throw new NotFoundException("User with id " + model.getId() + " not found");
         }
         return model;
+    }
+
+    @Override
+    public void delete(long id) {
+        String sqlDelete = "DELETE FROM users WHERE user_id = :id";
+        MapSqlParameterSource params = new MapSqlParameterSource("id", id);
+        try {
+            jdbc.update(sqlDelete, params);
+        } catch (EmptyResultDataAccessException e) {
+            log.warn("User with id {} not found", id);
+        }
     }
 
     @Override
