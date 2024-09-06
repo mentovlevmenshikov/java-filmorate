@@ -1,10 +1,10 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,15 +16,21 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.validator.Update;
 import ru.yandex.practicum.filmorate.service.DirectorService;
+import ru.yandex.practicum.filmorate.service.ModelService;
+import ru.yandex.practicum.filmorate.service.ValidationService;
 
 import java.util.Collection;
 
 @RestController
 @RequestMapping("/directors")
 @Slf4j
-@RequiredArgsConstructor
-public class DirectorController {
+public class DirectorController extends Controller<Director> {
     private final DirectorService directorService;
+
+    public DirectorController(ValidationService<Director> validationService, ModelService<Director> modelService, DirectorService directorService) {
+        super(validationService, modelService);
+        this.directorService = directorService;
+    }
 
     @GetMapping
     public Collection<Director> getAll() {
@@ -35,7 +41,7 @@ public class DirectorController {
     }
 
     @GetMapping("/{id}")
-    public Director getById(@PathVariable long id) {
+    public Director get(@PathVariable long id) {
         log.info("Запрос режиссера с id: {}", id);
         Director director = directorService.get(id);
         log.info("Возврат режиссера: {}", director);
@@ -57,5 +63,13 @@ public class DirectorController {
         Director updated = directorService.update(director);
         log.info("Обновленный режиссер: {}", director);
         return updated;
+    }
+
+    @Override
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable long id) {
+        log.info("Удаление режиссера с id: {}", id);
+        directorService.delete(id);
+        log.info("Режиссер удален");
     }
 }

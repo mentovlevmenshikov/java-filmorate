@@ -9,6 +9,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
+import ru.yandex.practicum.filmorate.repository.DeleteStorage;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -16,7 +17,7 @@ import java.util.Optional;
 
 @Slf4j
 @Repository
-public class JdbcDirectorRepository extends JdbcBaseRepository<Director> {
+public class JdbcDirectorRepository extends JdbcBaseRepository<Director> implements DeleteStorage {
 
     public JdbcDirectorRepository(RowMapper<Director> rowMapper) {
         super(rowMapper);
@@ -66,5 +67,16 @@ public class JdbcDirectorRepository extends JdbcBaseRepository<Director> {
             throw new NotFoundException("Director with id " + model.getId() + " not found");
         }
         return model;
+    }
+
+    @Override
+    public void delete(long id) {
+        String sqlDelete = "DELETE FROM directors WHERE director_id = :id";
+        MapSqlParameterSource filmParams = new MapSqlParameterSource("id", id);
+        try {
+            jdbc.update(sqlDelete, filmParams);
+        } catch (EmptyResultDataAccessException e) {
+            log.warn("Director with id {} not found", id);
+        }
     }
 }
