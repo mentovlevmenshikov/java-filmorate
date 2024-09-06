@@ -292,6 +292,9 @@ public class JdbcFilmRepository extends JdbcBaseRepository<Film> implements Like
             }
             jdbc.batchUpdate(query, genreFilmParams);
         }
+        else {
+            film.setGenres(new LinkedHashSet<>());
+        }
     }
 
     @Override
@@ -307,6 +310,9 @@ public class JdbcFilmRepository extends JdbcBaseRepository<Film> implements Like
                 directorFilmParams[i++] = directorFilmParam;
             }
             jdbc.batchUpdate(query, directorFilmParams);
+        }
+        else {
+            film.setDirectors(new HashSet<>());
         }
     }
 }
