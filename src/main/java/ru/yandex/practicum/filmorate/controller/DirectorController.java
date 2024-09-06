@@ -17,7 +17,6 @@ import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.validator.Update;
 import ru.yandex.practicum.filmorate.service.DirectorService;
 import ru.yandex.practicum.filmorate.service.ModelService;
-import ru.yandex.practicum.filmorate.service.ValidationService;
 
 import java.util.Collection;
 
@@ -27,8 +26,8 @@ import java.util.Collection;
 public class DirectorController extends Controller<Director> {
     private final DirectorService directorService;
 
-    public DirectorController(ValidationService<Director> validationService, ModelService<Director> modelService, DirectorService directorService) {
-        super(validationService, modelService);
+    public DirectorController(ModelService<Director> modelService, DirectorService directorService) {
+        super(null, modelService);
         this.directorService = directorService;
     }
 
