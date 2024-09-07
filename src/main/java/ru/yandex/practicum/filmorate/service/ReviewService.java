@@ -70,7 +70,7 @@ public class ReviewService extends ModelService<Review> {
 
     public Review get(long id) {
         return repository.getById(id)
-                .orElseThrow(() -> new NotFoundException("Сущность с id " + id + " не найдена"));
+                .orElseThrow(() -> new NotFoundException("Отзыв с id " + id + " не найден"));
     }
 
     public Review create(Review model) {
