@@ -1,12 +1,14 @@
+DROP TABLE IF EXISTS films_directors;
 DROP TABLE IF EXISTS films_genres;
 DROP TABLE IF EXISTS films_likes;
+DROP TABLE IF EXISTS reviews_users;
 DROP TABLE IF EXISTS REVIEWS;
 DROP TABLE IF EXISTS FILMS;
 DROP TABLE IF EXISTS mpa;
 DROP TABLE IF EXISTS GENRES;
 DROP TABLE IF EXISTS FRIENDS;
 DROP TABLE IF EXISTS USERS;
-
+DROP TABLE IF EXISTS directors;
 
 CREATE TABLE IF NOT EXISTS users (
 	user_id BIGINT AUTO_INCREMENT PRIMARY KEY NOT NULL,
@@ -59,6 +61,11 @@ CREATE TABLE IF NOT EXISTS films_likes (
     CONSTRAINT films_likes_film_user_ids_unique UNIQUE (film_id, user_id)
 );
 
+CREATE TABLE IF NOT EXISTS films_directors (
+    film_id BIGINT NOT NULL CONSTRAINT films_directors_film_id_fk REFERENCES films(film_id) ON DELETE CASCADE NOT NULL,
+    director_id BIGINT NOT NULL CONSTRAINT films_directors_directors_id_fk REFERENCES directors(director_id) ON DELETE CASCADE NOT NULL,
+    CONSTRAINT films_directors_ids_unique UNIQUE (film_id, director_id)
+);
 CREATE TABLE IF NOT EXISTS reviews (
     review_id BIGINT AUTO_INCREMENT PRIMARY KEY NOT NULL,
     content VARCHAR(100) NOT NULL,
@@ -68,15 +75,8 @@ CREATE TABLE IF NOT EXISTS reviews (
 );
 
 CREATE TABLE IF NOT EXISTS reviews_users (
-    review_id BIGINT CONSTRAINT review_users_review_id_fk REFERENCES reviews(review_id) NOT NULL,
-    user_id BIGINT CONSTRAINT review_users_user_id_fk REFERENCES users(user_id) NOT NULL,
+    review_id BIGINT CONSTRAINT review_users_review_id_fk REFERENCES reviews(review_id) ON DELETE CASCADE NOT NULL,
+    user_id BIGINT CONSTRAINT review_users_user_id_fk REFERENCES users(user_id) ON DELETE CASCADE NOT NULL,
     like_Dislike BIGINT,
     CONSTRAINT reviews_users_review_user_ids_unique UNIQUE (review_id, user_id)
-);
-
-
-CREATE TABLE IF NOT EXISTS films_directors (
-    film_id BIGINT NOT NULL CONSTRAINT films_directors_film_id_fk REFERENCES films(film_id) ON DELETE CASCADE NOT NULL,
-    director_id BIGINT NOT NULL CONSTRAINT films_directors_directors_id_fk REFERENCES directors(director_id) ON DELETE CASCADE NOT NULL,
-    CONSTRAINT films_directors_ids_unique UNIQUE (film_id, director_id)
 );

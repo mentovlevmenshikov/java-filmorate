@@ -7,7 +7,7 @@ import lombok.RequiredArgsConstructor;
 @Data
 @RequiredArgsConstructor
 @EqualsAndHashCode(of = "reviewId")
-public class Review  {
+public class Review {
     Long reviewId;
     String content;
     Boolean isPositive;
@@ -15,3 +15,4 @@ public class Review  {
     Long filmId;
     int useful;
 }
+

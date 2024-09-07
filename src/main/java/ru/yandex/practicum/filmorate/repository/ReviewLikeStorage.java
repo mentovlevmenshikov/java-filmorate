@@ -12,5 +12,6 @@ public interface ReviewLikeStorage {
 
     void deleteLike(Review review, User user);
 
-    Collection<Review> getCountReview(long filmId,int count);
+    Collection<Review> getCountReview(long filmId, int count);
 }
+
