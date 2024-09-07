@@ -88,6 +88,7 @@ public class JdbcReviewRepository extends JdbcBaseRepository<Review> implements 
 
         return review;
     }
+
     @Override
     public void delete(long id) {
         String sqlDelete = "DELETE FROM REVIEWS WHERE REVIEW_ID = :review_id; ";
@@ -121,6 +122,7 @@ public class JdbcReviewRepository extends JdbcBaseRepository<Review> implements 
         }
         jdbc.update(sqlQuery,likeParams);
     }
+
     @Override
     public void addDisLike(Review review, User user) {
         String sqlQuery = "INSERT INTO reviews_users (review_id, user_id, like_Dislike) " +
@@ -136,6 +138,7 @@ public class JdbcReviewRepository extends JdbcBaseRepository<Review> implements 
         }
         jdbc.update(sqlQuery, likeParams);
     }
+
     private boolean checkExistReviewLike(Long reviewId, Long userId) {
         boolean ret = false;
         final String sqlQuery = "SELECT count(*) FROM reviews_users WHERE review_id = :review_id AND user_id = :user_id";
@@ -149,6 +152,7 @@ public class JdbcReviewRepository extends JdbcBaseRepository<Review> implements 
         }
         return ret;
     }
+
     @Override
     public void deleteLike(Review review, User user) {
         String sqlQuery = "DELETE FROM reviews_users WHERE review_id = :review_id AND USER_ID = :user_id;";
