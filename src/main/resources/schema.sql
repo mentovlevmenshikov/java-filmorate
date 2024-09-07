@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS event_feed;
 DROP TABLE IF EXISTS films_directors;
 DROP TABLE IF EXISTS films_genres;
 DROP TABLE IF EXISTS films_likes;
@@ -79,4 +80,20 @@ CREATE TABLE IF NOT EXISTS reviews_users (
     user_id BIGINT CONSTRAINT review_users_user_id_fk REFERENCES users(user_id) ON DELETE CASCADE NOT NULL,
     like_Dislike BIGINT,
     CONSTRAINT reviews_users_review_user_ids_unique UNIQUE (review_id, user_id)
+);
+CREATE TABLE IF NOT EXISTS reviews (
+    review_id BIGINT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    content VARCHAR(100) NOT NULL,
+    isPositive boolean NOT NULL,
+    user_id BIGINT NOT NULL CONSTRAINT review_user_id_fk REFERENCES users(user_id),
+    film_id BIGINT NOT NULL CONSTRAINT review_film_id_fk REFERENCES films(film_id)
+);
+
+CREATE TABLE IF NOT EXISTS event_feed (
+    event_id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    event_timestamp BIGINT NOT NULL,
+    user_id BIGINT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    event_type varchar(30) CHECK (event_type IN ('LIKE', 'REVIEW', 'FRIEND')),
+    operation varchar(30) CHECK (operation IN ('REMOVE', 'ADD', 'UPDATE')),
+    entity_id BIGINT NOT NULL
 );

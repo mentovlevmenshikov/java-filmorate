@@ -9,8 +9,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.repository.DeleteStorage;
-import ru.yandex.practicum.filmorate.repository.FriendStorage;
+import ru.yandex.practicum.filmorate.repository.UserRepository;
 
 import java.util.Collection;
 import java.util.Map;
@@ -19,7 +18,7 @@ import java.util.Optional;
 
 @Repository
 @Slf4j
-public class JdbcUserRepository extends JdbcBaseRepository<User> implements FriendStorage, DeleteStorage {
+public class JdbcUserRepository extends JdbcBaseRepository<User> implements UserRepository {
 
     public JdbcUserRepository(RowMapper<User> userRowMapper) {
         super(userRowMapper);
