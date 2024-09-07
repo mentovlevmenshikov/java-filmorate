@@ -2,9 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Review;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.repository.DeleteStorage;
 import ru.yandex.practicum.filmorate.repository.ModelRepository;
 import ru.yandex.practicum.filmorate.repository.ReviewLikeStorage;
@@ -17,15 +15,18 @@ public class ReviewService extends ModelService<Review> {
     private final ReviewLikeStorage reviewLikeStorage;
     private final ModelRepository<User> userModelRepository;
     private final ModelRepository<Film> filmModelRepository;
+    private final EventFeedService eventFeedService;
 
     private final DeleteStorage deleteStorage;
 
-    public ReviewService(ModelRepository<Review> reviewModelRepository, ModelRepository<User> userModelRepository, ModelRepository<Film> filmModelRepository) {
+    public ReviewService(ModelRepository<Review> reviewModelRepository, ModelRepository<User> userModelRepository,
+                         ModelRepository<Film> filmModelRepository, EventFeedService eventFeedService) {
         super(reviewModelRepository);
         this.reviewLikeStorage = (ReviewLikeStorage) reviewModelRepository;
         this.userModelRepository = userModelRepository;
         this.filmModelRepository = filmModelRepository;
         deleteStorage = (DeleteStorage) reviewModelRepository;
+        this.eventFeedService = eventFeedService;
     }
 
     public boolean checkDataReview(Review review) {
@@ -73,15 +74,22 @@ public class ReviewService extends ModelService<Review> {
     }
 
     public Review create(Review model) {
-        return repository.create(model);
+        Review review = repository.create(model);
+        eventFeedService.addEvent(model.getUserId(), EventType.REVIEW, EventOperation.ADD, model.getReviewId());
+        return review;
     }
 
     public Review update(Review model) {
-        return repository.update(model);
+        Review review = repository.update(model);
+        eventFeedService.addEvent(model.getUserId(), EventType.REVIEW, EventOperation.UPDATE, model.getReviewId());
+        return review;
     }
 
     public void delete(long id) {
+        Review review = repository.getById(id)
+                        .orElseThrow(() -> new NotFoundException("Отзыв с id " + id + " не найден"));
         deleteStorage.delete(id);
+        eventFeedService.addEvent(review.getUserId(), EventType.REVIEW, EventOperation.REMOVE, review.getReviewId());
     }
 }
 
