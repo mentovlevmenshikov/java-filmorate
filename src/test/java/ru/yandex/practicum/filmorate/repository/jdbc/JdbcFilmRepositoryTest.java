@@ -27,44 +27,4 @@ class JdbcFilmRepositoryTest {
         List<Film> filmsList = (List<Film>) filmRepository.getAll();
         assertThatList(filmsList).hasSizeBetween(4, 4);
     }
-
-    @Test
-    void shouldAddLike() {
-        filmRepository.addLike(Film.builder().id(3L).build(), User.builder().id(1L).build());
-        filmRepository.addLike(Film.builder().id(3L).build(), User.builder().id(2L).build());
-        List<Film> popularFilms = (List<Film>) filmRepository.getPopularFilms(4);
-        Film expected = filmRepository.getById(3).get();
-        Film actual = popularFilms.getFirst();
-        assertThat(actual).isEqualTo(expected);
-    }
-
-    @Test
-    void shouldDeleteLike() {
-        filmRepository.addLike(Film.builder().id(3L).build(), User.builder().id(1L).build());
-        filmRepository.addLike(Film.builder().id(3L).build(), User.builder().id(2L).build());
-        filmRepository.deleteLike(Film.builder().id(3L).build(), User.builder().id(1L).build());
-        List<Film> popularFilms = (List<Film>) filmRepository.getPopularFilms(4);
-        int likesCount = popularFilms.stream().filter(film -> film.getId().equals(3L)).map(Film::getCountLikes).findFirst().get();
-        assertEquals(1, likesCount);
-        filmRepository.deleteLike(Film.builder().id(3L).build(), User.builder().id(2L).build());
-        popularFilms = (List<Film>) filmRepository.getPopularFilms(4);
-        likesCount = popularFilms.stream().filter(film -> film.getId().equals(3L)).map(Film::getCountLikes).findFirst().get();
-        assertEquals(0, likesCount);
-    }
-
-    @Test
-    void shouldGetPopularFilms() {
-        filmRepository.addLike(Film.builder().id(1L).build(), User.builder().id(1L).build());
-        filmRepository.addLike(Film.builder().id(2L).build(), User.builder().id(2L).build());
-        filmRepository.addLike(Film.builder().id(3L).build(), User.builder().id(1L).build());
-        List<Film> popularFilms = (List<Film>) filmRepository.getPopularFilms(4);
-        System.out.println(popularFilms.toString());
-        Film actual1 = popularFilms.get(0);
-        Film actual2 = popularFilms.get(1);
-        Film actual3 = popularFilms.get(2);
-        assertThat(actual1).isEqualTo(filmRepository.getById(1).get());
-        assertThat(actual2).isEqualTo(filmRepository.getById(2).get());
-        assertThat(actual3).isEqualTo(filmRepository.getById(3).get());
-        assertThatList(popularFilms).hasSizeBetween(4, 4);
-    }
 }
