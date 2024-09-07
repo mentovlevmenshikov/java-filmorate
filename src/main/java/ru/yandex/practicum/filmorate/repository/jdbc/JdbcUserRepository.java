@@ -9,7 +9,6 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.model.UserEvent;
 import ru.yandex.practicum.filmorate.repository.UserRepository;
 
 import java.util.Collection;
@@ -21,11 +20,8 @@ import java.util.Optional;
 @Slf4j
 public class JdbcUserRepository extends JdbcBaseRepository<User> implements UserRepository {
 
-    private final RowMapper<UserEvent> userEventRowMapper;
-
-    public JdbcUserRepository(RowMapper<User> userRowMapper, RowMapper<UserEvent> userEventRowMapper) {
+    public JdbcUserRepository(RowMapper<User> userRowMapper) {
         super(userRowMapper);
-        this.userEventRowMapper = userEventRowMapper;
     }
 
     @Override
