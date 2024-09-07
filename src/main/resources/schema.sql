@@ -1,12 +1,12 @@
-DROP TABLE IF EXISTS films_directors;
 DROP TABLE IF EXISTS films_genres;
 DROP TABLE IF EXISTS films_likes;
+DROP TABLE IF EXISTS REVIEWS;
 DROP TABLE IF EXISTS FILMS;
 DROP TABLE IF EXISTS mpa;
 DROP TABLE IF EXISTS GENRES;
 DROP TABLE IF EXISTS FRIENDS;
 DROP TABLE IF EXISTS USERS;
-DROP TABLE IF EXISTS directors;
+
 
 CREATE TABLE IF NOT EXISTS users (
 	user_id BIGINT AUTO_INCREMENT PRIMARY KEY NOT NULL,
@@ -58,6 +58,22 @@ CREATE TABLE IF NOT EXISTS films_likes (
     user_id BIGINT CONSTRAINT films_likes_user_id_fk REFERENCES users(user_id) ON DELETE CASCADE NOT NULL,
     CONSTRAINT films_likes_film_user_ids_unique UNIQUE (film_id, user_id)
 );
+
+CREATE TABLE IF NOT EXISTS reviews (
+    review_id BIGINT AUTO_INCREMENT PRIMARY KEY NOT NULL,
+    content VARCHAR(100) NOT NULL,
+    isPositive boolean NOT NULL,
+    user_id BIGINT NOT NULL CONSTRAINT review_user_id_fk REFERENCES users(user_id),
+    film_id BIGINT NOT NULL CONSTRAINT review_film_id_fk REFERENCES films(film_id)
+);
+
+CREATE TABLE IF NOT EXISTS reviews_users (
+    review_id BIGINT CONSTRAINT review_users_review_id_fk REFERENCES reviews(review_id) NOT NULL,
+    user_id BIGINT CONSTRAINT review_users_user_id_fk REFERENCES users(user_id) NOT NULL,
+    like_Dislike BIGINT,
+    CONSTRAINT reviews_users_review_user_ids_unique UNIQUE (review_id, user_id)
+);
+
 
 CREATE TABLE IF NOT EXISTS films_directors (
     film_id BIGINT NOT NULL CONSTRAINT films_directors_film_id_fk REFERENCES films(film_id) ON DELETE CASCADE NOT NULL,
