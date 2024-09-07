@@ -1,3 +1,4 @@
+DROP TABLE IF EXISTS event_feed;
 DROP TABLE IF EXISTS films_directors;
 DROP TABLE IF EXISTS films_genres;
 DROP TABLE IF EXISTS films_likes;
@@ -63,4 +64,13 @@ CREATE TABLE IF NOT EXISTS films_directors (
     film_id BIGINT NOT NULL CONSTRAINT films_directors_film_id_fk REFERENCES films(film_id) ON DELETE CASCADE NOT NULL,
     director_id BIGINT NOT NULL CONSTRAINT films_directors_directors_id_fk REFERENCES directors(director_id) ON DELETE CASCADE NOT NULL,
     CONSTRAINT films_directors_ids_unique UNIQUE (film_id, director_id)
+);
+
+CREATE TABLE IF NOT EXISTS event_feed (
+    event_id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    event_timestamp BIGINT NOT NULL,
+    user_id BIGINT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    event_type varchar(30) CHECK (event_type IN ('LIKE', 'REVIEW', 'FRIEND')),
+    operation varchar(30) CHECK (operation IN ('REMOVE', 'ADD', 'UPDATE')),
+    entity_id BIGINT NOT NULL
 );

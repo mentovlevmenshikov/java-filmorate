@@ -3,9 +3,7 @@ package ru.yandex.practicum.filmorate.service;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
-import ru.yandex.practicum.filmorate.model.Director;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.repository.DeleteStorage;
 import ru.yandex.practicum.filmorate.repository.FilmStorage;
 import ru.yandex.practicum.filmorate.repository.LikeStorage;
@@ -23,15 +21,17 @@ public class FilmService extends ModelService<Film> {
     private final ModelRepository<Director> directorModelRepository;
     private final List<String> sortFeatures = List.of("year", "likes");
     private final DeleteStorage deleteStorage;
+    private final EventFeedService eventFeedService;
 
     public FilmService(ModelRepository<Film> filmModelRepository, ModelRepository<User> userModelRepository,
-                       ModelRepository<Director> directorModelRepository) {
+                       ModelRepository<Director> directorModelRepository, EventFeedService eventFeedService) {
         super(filmModelRepository);
         likeStorage = (LikeStorage) filmModelRepository;
         filmStorage = (FilmStorage) filmModelRepository;
         this.userModelRepository = userModelRepository;
         this.directorModelRepository = directorModelRepository;
         deleteStorage = (DeleteStorage)filmModelRepository;
+        this.eventFeedService = eventFeedService;
     }
 
     public int addLike(long id, long userId) {
@@ -40,6 +40,7 @@ public class FilmService extends ModelService<Film> {
         final User user = userModelRepository.getById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found with " + userId));
         likeStorage.addLike(film, user);
+        eventFeedService.addEvent(userId, EventType.LIKE, EventOperation.ADD, id);
         return film.getCountLikes();
     }
 
@@ -49,6 +50,7 @@ public class FilmService extends ModelService<Film> {
         final User user = userModelRepository.getById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found with " + userId));
         likeStorage.deleteLike(film, user);
+        eventFeedService.addEvent(userId, EventType.LIKE, EventOperation.REMOVE, id);
         return film.getCountLikes();
     }
 
@@ -68,7 +70,7 @@ public class FilmService extends ModelService<Film> {
             sortBy = sortFeatures.getFirst();
         }
         if (!sortFeatures.contains(sortBy)) {
-            new ValidationException("Sorting by " + sortBy + " not allowed");
+            throw new ValidationException("Sorting by " + sortBy + " not allowed");
         }
         return filmStorage.getFilmsByDirector(directorId, sortBy);
     }

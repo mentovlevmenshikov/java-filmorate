@@ -4,6 +4,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.UserEvent;
+import ru.yandex.practicum.filmorate.service.EventFeedService;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.service.ValidationService;
 
@@ -15,10 +17,12 @@ import java.util.Collection;
 @Slf4j
 public class UserController extends Controller<User> {
     private final UserService userService;
+    private final EventFeedService eventFeedService;
 
-    public UserController(ValidationService<User> validationService, UserService userService) {
+    public UserController(ValidationService<User> validationService, UserService userService, EventFeedService eventFeedService) {
         super(validationService, userService);
         this.userService = userService;
+        this.eventFeedService = eventFeedService;
     }
 
     @Override
@@ -98,6 +102,14 @@ public class UserController extends Controller<User> {
         Collection<User> commonFriends = userService.getCommonFriends(id, otherId);
         log.info("Возврат общих друзей в кол-ве: {}", commonFriends.size());
         return commonFriends;
+    }
+
+    @GetMapping("/{id}/feed")
+    public Collection<UserEvent> getEventFeed(@PathVariable long id) {
+        log.info("Запрос ленты событи по пользователю с id {}", id);
+        Collection<UserEvent> eventFeed = eventFeedService.getEventFeed(id);
+        log.info("Возврат ленты событий с кол-вом событий {}", eventFeed.size());
+        return eventFeed;
     }
 
     private void preSetFields(User user) {
