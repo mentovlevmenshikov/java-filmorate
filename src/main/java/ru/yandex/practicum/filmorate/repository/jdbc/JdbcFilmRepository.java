@@ -339,7 +339,7 @@ public class JdbcFilmRepository extends JdbcBaseRepository<Film> implements Like
             return Collections.emptyList();
         }
 
-        String sqlFilmsGenres = """
+        /*String sqlFilmsGenres = """
                 SELECT f.film_id, g.genre_id, g.genre_name
                 FROM films_genres f JOIN genres g ON f.genre_id = g.genre_id
                 ORDER BY G.GENRE_ID
@@ -353,7 +353,8 @@ public class JdbcFilmRepository extends JdbcBaseRepository<Film> implements Like
                     film.setGenres(genres);
                 }
             });
-        }
+        }*/
+        getGenresOfFilms(films);
 
         return films;
     }
