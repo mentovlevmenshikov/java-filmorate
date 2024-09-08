@@ -74,4 +74,8 @@ public class FilmService extends ModelService<Film> {
         }
         return filmStorage.getFilmsByDirector(directorId, sortBy);
     }
+
+    public Collection<Film> getCommonFilmsByUserIdAndFriendId(Long userId, Long friendId) {
+        return likeStorage.getCommonFilmsByUserIdAndFriendId(userId, friendId);
+    }
 }
