@@ -339,22 +339,8 @@ public class JdbcFilmRepository extends JdbcBaseRepository<Film> implements Like
             return Collections.emptyList();
         }
 
-        /*String sqlFilmsGenres = """
-                SELECT f.film_id, g.genre_id, g.genre_name
-                FROM films_genres f JOIN genres g ON f.genre_id = g.genre_id
-                ORDER BY G.GENRE_ID
-                """;
-        Map<Long, LinkedHashSet<Genre>> filmsGenres = jdbc.query(sqlFilmsGenres, filmsGenresExtractor);
-
-        if (filmsGenres != null && !filmsGenres.isEmpty()) {
-            films.forEach(film -> {
-                LinkedHashSet<Genre> genres = filmsGenres.get(film.getId());
-                if (genres != null) {
-                    film.setGenres(genres);
-                }
-            });
-        }*/
         getGenresOfFilms(films);
+        getDirectorsOfFilms(films);
 
         return films;
     }
