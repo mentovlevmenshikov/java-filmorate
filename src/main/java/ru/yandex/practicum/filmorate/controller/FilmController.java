@@ -108,4 +108,13 @@ public class FilmController extends Controller<Film> {
         log.info("Возврат фильмов: {}", films);
         return films;
     }
+
+    //GET /films/common?userId={userId}&friendId={friendId}
+    @GetMapping("/common")
+    public Collection<Film> getCommonFilmsByUserIdAndFriendId(@RequestParam Long userId, @RequestParam Long friendId) {
+        log.info("Запрос общих фильмов пользователя с id = {} и его друга с id = {}", userId, friendId);
+        Collection<Film> films = filmService.getCommonFilmsByUserIdAndFriendId(userId, friendId);
+        log.info("Возврат общих фильмов пользователя с id = {} и его друга с id = {}", userId, friendId);
+        return films;
+    }
 }

@@ -313,4 +313,48 @@ public class JdbcFilmRepository extends JdbcBaseRepository<Film> implements Like
             film.setDirectors(new HashSet<>());
         }
     }
+
+    @Override
+    public Collection<Film> getCommonFilmsByUserIdAndFriendId(Long userId, Long friendId) {
+        MapSqlParameterSource filmsParams = new MapSqlParameterSource();
+        filmsParams.addValue("user_id", userId);
+        filmsParams.addValue("friend_id", friendId);
+
+        String sql = """
+                SELECT FILM_ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, F.MPA_ID,
+                                                    M.MPA_NAME, T.COUNT_LIKES
+                                                    FROM FILMS F JOIN (
+                                                         SELECT fl.FILM_ID TOP_FILM_ID, COUNT(*) COUNT_LIKES
+                                                         FROM FILMS_LIKES fl
+                                                         WHERE USER_ID IN (:user_id, :friend_id)
+                                                         GROUP BY fl.FILM_ID
+                                                         HAVING COUNT(*) = 2
+                                                         ORDER BY COUNT_LIKES DESC
+                                                         ) T ON F.FILM_ID = T.TOP_FILM_ID
+                                                     JOIN MPA M ON F.MPA_ID = M.MPA_ID;
+                    """;
+        Collection<Film> films = jdbc.query(sql, filmsParams, rowMapper);
+
+        if (films.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        String sqlFilmsGenres = """
+                SELECT f.film_id, g.genre_id, g.genre_name
+                FROM films_genres f JOIN genres g ON f.genre_id = g.genre_id
+                ORDER BY G.GENRE_ID
+                """;
+        Map<Long, LinkedHashSet<Genre>> filmsGenres = jdbc.query(sqlFilmsGenres, filmsGenresExtractor);
+
+        if (filmsGenres != null && !filmsGenres.isEmpty()) {
+            films.forEach(film -> {
+                LinkedHashSet<Genre> genres = filmsGenres.get(film.getId());
+                if (genres != null) {
+                    film.setGenres(genres);
+                }
+            });
+        }
+
+        return films;
+    }
 }
