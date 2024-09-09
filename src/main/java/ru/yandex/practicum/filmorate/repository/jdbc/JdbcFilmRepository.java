@@ -191,7 +191,6 @@ public class JdbcFilmRepository extends JdbcBaseRepository<Film> implements Film
                                      LIMIT :count) T ON F.FILM_ID = T.TOP_FILM_ID
                                      JOIN MPA M ON F.MPA_ID = M.MPA_ID;
                     """;
-                      
         Collection<Film> films = jdbc.query(sql, filmsParams, rowMapper);
         fillReferenceFields(films);
         return films;
@@ -358,7 +357,7 @@ public class JdbcFilmRepository extends JdbcBaseRepository<Film> implements Film
     private String formatQuery(String query) {
         return "%" + query + "%";
     }
-  
+
     public Collection<Film> getCommonFilmsByUserIdAndFriendId(Long userId, Long friendId) {
         MapSqlParameterSource filmsParams = new MapSqlParameterSource();
         filmsParams.addValue("user_id", userId);
