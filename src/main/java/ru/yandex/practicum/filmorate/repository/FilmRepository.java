@@ -15,7 +15,7 @@ public interface FilmRepository extends ModelRepository<Film>, DeleteStorage, Li
 
     void insertDirectors(Film film);
 
-    Collection<Film> searchByDirector(String query );
+    Collection<Film> searchByDirector(String query);
 
     Collection<Film> searchByTitle(String query);
 
