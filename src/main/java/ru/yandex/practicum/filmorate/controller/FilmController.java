@@ -133,8 +133,7 @@ public class FilmController extends Controller<Film> {
             throw new ValidationException("Неизвестный способ поиска.");
         }
     }
-  
-    //GET /films/common?userId={userId}&friendId={friendId}
+
     @GetMapping("/common")
     public Collection<Film> getCommonFilmsByUserIdAndFriendId(@RequestParam Long userId, @RequestParam Long friendId) {
         log.info("Запрос общих фильмов пользователя с id = {} и его друга с id = {}", userId, friendId);
