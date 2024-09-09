@@ -4,18 +4,11 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.validator.Update;
+import ru.yandex.practicum.filmorate.service.FilmSearchBy;
 import ru.yandex.practicum.filmorate.service.FilmService;
 import ru.yandex.practicum.filmorate.service.ValidationService;
 
@@ -107,5 +100,35 @@ public class FilmController extends Controller<Film> {
         Collection<Film> films = filmService.getByDirector(directorId, sortBy);
         log.info("Возврат фильмов: {}", films);
         return films;
+    }
+
+    @GetMapping("/search")
+    public Collection<Film> getByQuery(@RequestParam String query, @RequestParam String by) {
+        log.info("Поиск фильмов query = [{}]; by = [{}]", query, by);
+        FilmSearchBy searchBy = getSearchBy(by);
+        Collection<Film> films = filmService.getByQuery(searchBy, query);
+        log.info("Найдено фильмов {}", films.size());
+        return films;
+    }
+
+    private FilmSearchBy getSearchBy(String by) {
+        if (by == null || by.isBlank()) {
+            throw new ValidationException("Не указан способ поиска.");
+        }
+
+        String [] bys = by.split(",");
+
+        try  {
+            FilmSearchBy searchBy = FilmSearchBy.valueOf(bys[0].toUpperCase());
+            if (bys.length == 2) {
+                FilmSearchBy searchBy2 = FilmSearchBy.valueOf(bys[1].toUpperCase());
+                if (searchBy != searchBy2) {
+                    searchBy = FilmSearchBy.DIRECTOR_TITLE_BOTH;
+                }
+            }
+            return  searchBy;
+        } catch (IllegalArgumentException ex) {
+            throw new ValidationException("Неизвестный способ поиска.");
+        }
     }
 }

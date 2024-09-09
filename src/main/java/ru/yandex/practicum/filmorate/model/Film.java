@@ -34,8 +34,10 @@ public class Film implements Model {
     private Long duration;
     @NotNull
     private MPA mpa;
+    @Builder.Default
     private LinkedHashSet<Genre> genres = new LinkedHashSet<>();
     private int countLikes;
+    @Builder.Default
     private HashSet<Director> directors = new HashSet<>();
 
     @Override

@@ -9,7 +9,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
-import ru.yandex.practicum.filmorate.repository.DeleteStorage;
+import ru.yandex.practicum.filmorate.repository.DirectorRepository;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -17,7 +17,7 @@ import java.util.Optional;
 
 @Slf4j
 @Repository
-public class JdbcDirectorRepository extends JdbcBaseRepository<Director> implements DeleteStorage {
+public class JdbcDirectorRepository extends JdbcBaseRepository<Director> implements DirectorRepository {
 
     public JdbcDirectorRepository(RowMapper<Director> rowMapper) {
         super(rowMapper);
