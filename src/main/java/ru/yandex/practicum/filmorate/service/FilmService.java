@@ -47,12 +47,8 @@ public class FilmService extends ModelService<Film> {
         return film.getCountLikes();
     }
 
-    public Collection<Film> getPopular(Integer count) {
-        return filmRepository.getPopularFilms(count);
-    }
-
     public Collection<Film> getPopularByGenreIdAndYear(int count, Long genreId, Integer year) {
-        return likeStorage.getPopularByGenreIdAndYear(count, genreId, year);
+        return filmRepository.getPopularByGenreIdAndYear(count, genreId, year);
     }
 
     public void delete(long id) {
@@ -82,6 +78,6 @@ public class FilmService extends ModelService<Film> {
     }
 
     public Collection<Film> getCommonFilmsByUserIdAndFriendId(Long userId, Long friendId) {
-        return likeStorage.getCommonFilmsByUserIdAndFriendId(userId, friendId);
+        return filmRepository.getCommonFilmsByUserIdAndFriendId(userId, friendId);
     }
 }
