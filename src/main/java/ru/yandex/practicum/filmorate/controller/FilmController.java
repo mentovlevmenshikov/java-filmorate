@@ -94,9 +94,11 @@ public class FilmController extends Controller<Film> {
     }
 
     @GetMapping("/popular")
-    public Collection<Film> getPopular(@RequestParam(defaultValue = "10") int count) {
-        log.info("Получение популярных фильмов в кол-ве: {}", count);
-        Collection<Film> popularFilms = filmService.getPopular(count);
+    public Collection<Film> getPopularByGenreIdAndYear(@RequestParam(defaultValue = "10") int count,
+                                                       @RequestParam(required = false) Long genreId,
+                                                       @RequestParam(required = false) Integer year) {
+        log.info("Получение популярных фильмов c id жанра = {} и годом = {} в кол-ве: {}", genreId, year, count);
+        Collection<Film> popularFilms = filmService.getPopularByGenreIdAndYear(count, genreId, year);
         log.info("Выбрано популярных фильмов в кол-ве: {}", popularFilms.size());
         return popularFilms;
     }

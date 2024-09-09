@@ -54,8 +54,8 @@ public class FilmService extends ModelService<Film> {
         return film.getCountLikes();
     }
 
-    public Collection<Film> getPopular(Integer count) {
-        return likeStorage.getPopularFilms(count);
+    public Collection<Film> getPopularByGenreIdAndYear(int count, Long genreId, Integer year) {
+        return likeStorage.getPopularByGenreIdAndYear(count, genreId, year);
     }
 
     public void delete(long id) {
