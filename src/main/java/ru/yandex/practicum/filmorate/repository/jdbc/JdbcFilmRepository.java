@@ -167,24 +167,32 @@ public class JdbcFilmRepository extends JdbcBaseRepository<Film> implements Film
         jdbc.update(sqlQuery, Map.of("film_id", film.getId(), "user_id", user.getId()));
     }
 
-    @Override
-    public Collection<Film> getPopularFilms(int count) {
+    public Collection<Film> getPopularByGenreIdAndYear(int count, Long genreId, Integer year) {
+
+        MapSqlParameterSource filmsParams = new MapSqlParameterSource();
+        filmsParams.addValue("count", count);
+        filmsParams.addValue("year", year != null ? year : "%");
+        filmsParams.addValue("genre_id", genreId != null ? genreId : "%");
+
         String sql = """
-                    SELECT FILM_ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, F.MPA_ID,
-                    M.MPA_NAME, T.COUNT_LIKES
-                    FROM FILMS F LEFT JOIN
-                    (SELECT TOP_FILM_ID, COUNT_LIKES
-                     FROM
-                        (SELECT FILM_ID TOP_FILM_ID, COUNT(*) COUNT_LIKES
-                         FROM FILMS_LIKES
-                         GROUP BY FILM_ID
-                         )
-                    ) T ON F.FILM_ID = T.TOP_FILM_ID
-                    JOIN MPA M ON F.MPA_ID = M.MPA_ID
-                    ORDER BY T.COUNT_LIKES DESC
-                    LIMIT :count;
+                SELECT FILM_ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, F.MPA_ID,
+                                    M.MPA_NAME, T.COUNT_LIKES
+                                    FROM FILMS F JOIN
+                                    (SELECT TOP_FILM_ID, COUNT_LIKES
+                                     FROM
+                                        (SELECT fl.FILM_ID TOP_FILM_ID, COUNT(*) COUNT_LIKES
+                                         FROM FILMS_LIKES fl
+                                         LEFT JOIN FILMS ff ON fl.FILM_ID = ff.FILM_ID
+                                         LEFT JOIN FILMS_GENRES fg ON fl.FILM_ID = fg.FILM_ID
+                                         WHERE EXTRACT(YEAR FROM ff.RELEASE_DATE) LIKE :year AND fg.GENRE_ID LIKE :genre_id
+                                         GROUP BY fl.FILM_ID
+                                         ORDER BY COUNT_LIKES DESC
+                                         )
+                                     LIMIT :count) T ON F.FILM_ID = T.TOP_FILM_ID
+                                     JOIN MPA M ON F.MPA_ID = M.MPA_ID;
                     """;
-        Collection<Film> films = jdbc.query(sql, Map.of("count", count), rowMapper);
+                      
+        Collection<Film> films = jdbc.query(sql, filmsParams, rowMapper);
         fillReferenceFields(films);
         return films;
     }
@@ -349,5 +357,35 @@ public class JdbcFilmRepository extends JdbcBaseRepository<Film> implements Film
 
     private String formatQuery(String query) {
         return "%" + query + "%";
+    }
+  
+    public Collection<Film> getCommonFilmsByUserIdAndFriendId(Long userId, Long friendId) {
+        MapSqlParameterSource filmsParams = new MapSqlParameterSource();
+        filmsParams.addValue("user_id", userId);
+        filmsParams.addValue("friend_id", friendId);
+
+        String sql = """
+                SELECT FILM_ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, F.MPA_ID,
+                                                    M.MPA_NAME, T.COUNT_LIKES
+                                                    FROM FILMS F JOIN (
+                                                         SELECT fl.FILM_ID TOP_FILM_ID, COUNT(*) COUNT_LIKES
+                                                         FROM FILMS_LIKES fl
+                                                         WHERE USER_ID IN (:user_id, :friend_id)
+                                                         GROUP BY fl.FILM_ID
+                                                         HAVING COUNT(*) = 2
+                                                         ORDER BY COUNT_LIKES DESC
+                                                         ) T ON F.FILM_ID = T.TOP_FILM_ID
+                                                     JOIN MPA M ON F.MPA_ID = M.MPA_ID;
+                    """;
+        Collection<Film> films = jdbc.query(sql, filmsParams, rowMapper);
+
+        if (films.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        getGenresOfFilms(films);
+        getDirectorsOfFilms(films);
+
+        return films;
     }
 }

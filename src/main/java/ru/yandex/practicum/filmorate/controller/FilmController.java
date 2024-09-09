@@ -87,9 +87,11 @@ public class FilmController extends Controller<Film> {
     }
 
     @GetMapping("/popular")
-    public Collection<Film> getPopular(@RequestParam(defaultValue = "10") int count) {
-        log.info("Получение популярных фильмов в кол-ве: {}", count);
-        Collection<Film> popularFilms = filmService.getPopular(count);
+    public Collection<Film> getPopularByGenreIdAndYear(@RequestParam(defaultValue = "10") int count,
+                                                       @RequestParam(required = false) Long genreId,
+                                                       @RequestParam(required = false) Integer year) {
+        log.info("Получение популярных фильмов c id жанра = {} и годом = {} в кол-ве: {}", genreId, year, count);
+        Collection<Film> popularFilms = filmService.getPopularByGenreIdAndYear(count, genreId, year);
         log.info("Выбрано популярных фильмов в кол-ве: {}", popularFilms.size());
         return popularFilms;
     }
@@ -130,5 +132,14 @@ public class FilmController extends Controller<Film> {
         } catch (IllegalArgumentException ex) {
             throw new ValidationException("Неизвестный способ поиска.");
         }
+    }
+  
+    //GET /films/common?userId={userId}&friendId={friendId}
+    @GetMapping("/common")
+    public Collection<Film> getCommonFilmsByUserIdAndFriendId(@RequestParam Long userId, @RequestParam Long friendId) {
+        log.info("Запрос общих фильмов пользователя с id = {} и его друга с id = {}", userId, friendId);
+        Collection<Film> films = filmService.getCommonFilmsByUserIdAndFriendId(userId, friendId);
+        log.info("Возврат общих фильмов пользователя с id = {} и его друга с id = {}", userId, friendId);
+        return films;
     }
 }
