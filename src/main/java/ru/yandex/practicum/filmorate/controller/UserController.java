@@ -3,9 +3,11 @@ package ru.yandex.practicum.filmorate.controller;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.model.UserEvent;
 import ru.yandex.practicum.filmorate.service.EventFeedService;
+import ru.yandex.practicum.filmorate.service.RecommendationService;
 import ru.yandex.practicum.filmorate.service.UserService;
 import ru.yandex.practicum.filmorate.service.ValidationService;
 
@@ -19,10 +21,14 @@ public class UserController extends Controller<User> {
     private final UserService userService;
     private final EventFeedService eventFeedService;
 
-    public UserController(ValidationService<User> validationService, UserService userService, EventFeedService eventFeedService) {
+    private final RecommendationService recommendationService;
+
+    public UserController(ValidationService<User> validationService, UserService userService, EventFeedService eventFeedService,
+                          RecommendationService recommendationService) {
         super(validationService, userService);
         this.userService = userService;
         this.eventFeedService = eventFeedService;
+        this.recommendationService = recommendationService;
     }
 
     @Override
@@ -110,6 +116,12 @@ public class UserController extends Controller<User> {
         Collection<UserEvent> eventFeed = eventFeedService.getEventFeed(id);
         log.info("Возврат ленты событий с кол-вом событий {}", eventFeed.size());
         return eventFeed;
+    }
+
+    @GetMapping("/{id}/recommendations")
+    public Collection<Film> getRecommendations(@PathVariable long id) {
+        log.info("Запрос рекомендаций для пользователя c id {}", id);
+        return recommendationService.getRecommendations(id);
     }
 
     private void preSetFields(User user) {

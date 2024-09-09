@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.repository.ModelRepository;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class FilmService extends ModelService<Film> {
@@ -77,5 +78,9 @@ public class FilmService extends ModelService<Film> {
 
     public Collection<Film> getCommonFilmsByUserIdAndFriendId(Long userId, Long friendId) {
         return likeStorage.getCommonFilmsByUserIdAndFriendId(userId, friendId);
+    }
+
+    public Set<Film> getLikedFilms(long userId) {
+        return likeStorage.getLikedFilmsByUser(userId);
     }
 }

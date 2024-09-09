@@ -17,14 +17,7 @@ import ru.yandex.practicum.filmorate.repository.DeleteStorage;
 import ru.yandex.practicum.filmorate.repository.FilmStorage;
 import ru.yandex.practicum.filmorate.repository.LikeStorage;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @Repository
 @Slf4j
@@ -350,5 +343,24 @@ public class JdbcFilmRepository extends JdbcBaseRepository<Film> implements Like
         getDirectorsOfFilms(films);
 
         return films;
+    }
+
+    @Override
+    public Set<Film> getLikedFilmsByUser(long userId) {
+        String sqlQuery = """
+        SELECT f.film_Id, f.name, f.description, f.release_date, f.duration,
+         m.mpa_id, m.mpa_name, (SELECT count(*) FROM films_likes l WHERE l.film_id = f.film_id) count_likes
+         FROM films f
+         JOIN films_likes fl ON f.film_Id = fl.film_Id
+         JOIN mpa m ON f.mpa_id = m.mpa_id
+         WHERE fl.user_id = :userId
+         """;
+
+        Collection<Film> likedFilms = jdbc.query(sqlQuery, Map.of("userId", userId), rowMapper);
+
+        getGenresOfFilms(likedFilms);
+        getDirectorsOfFilms(likedFilms);
+
+        return new HashSet<>(likedFilms);
     }
 }
