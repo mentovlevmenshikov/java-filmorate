@@ -133,13 +133,12 @@ public class JdbcFilmRepository extends JdbcBaseRepository<Film> implements Film
         MapSqlParameterSource filmParam = new MapSqlParameterSource("film_id", model.getId());
         String queryToDeleteFilmGenres = "DELETE FROM FILMS_GENRES WHERE FILM_ID = :film_id;";
         jdbc.update(queryToDeleteFilmGenres, filmParam);
-
         insertGenres(model);
 
         String queryToDeleteFilmDirectors = "DELETE FROM FILMS_DIRECTORS WHERE FILM_ID = :film_id;";
-        jdbc.update(queryToDeleteFilmGenres, filmParam);
-
+        jdbc.update(queryToDeleteFilmDirectors, filmParam);
         insertDirectors(model);
+
 
         return model;
     }
