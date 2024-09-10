@@ -4,10 +4,7 @@ import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.*;
-import ru.yandex.practicum.filmorate.repository.DeleteStorage;
-import ru.yandex.practicum.filmorate.repository.FilmStorage;
-import ru.yandex.practicum.filmorate.repository.LikeStorage;
-import ru.yandex.practicum.filmorate.repository.ModelRepository;
+import ru.yandex.practicum.filmorate.repository.*;
 
 import java.util.Collection;
 import java.util.List;
@@ -16,31 +13,27 @@ import java.util.Set;
 @Service
 public class FilmService extends ModelService<Film> {
 
-    private final LikeStorage likeStorage;
-    private final ModelRepository<User> userModelRepository;
-    private final FilmStorage filmStorage;
-    private final ModelRepository<Director> directorModelRepository;
+    private final UserRepository userRepository;
+    private final FilmRepository filmRepository;
+    private final ModelRepository<Director> directorRepository;
     private final List<String> sortFeatures = List.of("year", "likes");
-    private final DeleteStorage deleteStorage;
     private final EventFeedService eventFeedService;
 
-    public FilmService(ModelRepository<Film> filmModelRepository, ModelRepository<User> userModelRepository,
-                       ModelRepository<Director> directorModelRepository, EventFeedService eventFeedService) {
-        super(filmModelRepository);
-        likeStorage = (LikeStorage) filmModelRepository;
-        filmStorage = (FilmStorage) filmModelRepository;
-        this.userModelRepository = userModelRepository;
-        this.directorModelRepository = directorModelRepository;
-        deleteStorage = (DeleteStorage)filmModelRepository;
+    public FilmService(FilmRepository filmRepository, UserRepository userRepository,
+                       DirectorRepository directorRepository, EventFeedService eventFeedService) {
+        super(filmRepository);
+        this.filmRepository = filmRepository;
+        this.userRepository = userRepository;
+        this.directorRepository = directorRepository;
         this.eventFeedService = eventFeedService;
     }
 
     public int addLike(long id, long userId) {
         final Film film = repository.getById(id)
                 .orElseThrow(() -> new NotFoundException("Film not found with " + id));
-        final User user = userModelRepository.getById(userId)
+        final User user = userRepository.getById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found with " + userId));
-        likeStorage.addLike(film, user);
+        filmRepository.addLike(film, user);
         eventFeedService.addEvent(userId, EventType.LIKE, EventOperation.ADD, id);
         return film.getCountLikes();
     }
@@ -48,23 +41,23 @@ public class FilmService extends ModelService<Film> {
     public int deleteLike(long id, long userId) {
         final Film film = repository.getById(id)
                 .orElseThrow(() -> new NotFoundException("Film not found with " + id));
-        final User user = userModelRepository.getById(userId)
+        final User user = userRepository.getById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found with " + userId));
-        likeStorage.deleteLike(film, user);
+        filmRepository.deleteLike(film, user);
         eventFeedService.addEvent(userId, EventType.LIKE, EventOperation.REMOVE, id);
         return film.getCountLikes();
     }
 
     public Collection<Film> getPopularByGenreIdAndYear(int count, Long genreId, Integer year) {
-        return likeStorage.getPopularByGenreIdAndYear(count, genreId, year);
+        return filmRepository.getPopularByGenreIdAndYear(count, genreId, year);
     }
 
     public void delete(long id) {
-        deleteStorage.delete(id);
+        filmRepository.delete(id);
     }
 
     public Collection<Film> getByDirector(long directorId, String sortBy) {
-        final Director director = directorModelRepository.getById(directorId)
+        final Director director = directorRepository.getById(directorId)
                 .orElseThrow(() -> new NotFoundException("Director not found with " + directorId));
 
         if (sortBy == null || sortBy.isBlank()) {
@@ -73,11 +66,20 @@ public class FilmService extends ModelService<Film> {
         if (!sortFeatures.contains(sortBy)) {
             throw new ValidationException("Sorting by " + sortBy + " not allowed");
         }
-        return filmStorage.getFilmsByDirector(directorId, sortBy);
+        return filmRepository.getFilmsByDirector(directorId, sortBy);
+    }
+
+    public Collection<Film> getByQuery(FilmSearchBy searchBy, String query) {
+        return
+                switch (searchBy) {
+                    case DIRECTOR -> filmRepository.searchByDirector(query);
+                    case TITLE -> filmRepository.searchByTitle(query);
+                    case DIRECTOR_TITLE_BOTH -> filmRepository.searchByDirectorTitleBoth(query);
+        };
     }
 
     public Collection<Film> getCommonFilmsByUserIdAndFriendId(Long userId, Long friendId) {
-        return likeStorage.getCommonFilmsByUserIdAndFriendId(userId, friendId);
+        return filmRepository.getCommonFilmsByUserIdAndFriendId(userId, friendId);
     }
 
     public Set<Film> getLikedFilms(long userId) {

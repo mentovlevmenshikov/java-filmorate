@@ -13,15 +13,13 @@ import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.repository.DeleteStorage;
-import ru.yandex.practicum.filmorate.repository.FilmStorage;
-import ru.yandex.practicum.filmorate.repository.LikeStorage;
+import ru.yandex.practicum.filmorate.repository.FilmRepository;
 
 import java.util.*;
 
 @Repository
 @Slf4j
-public class JdbcFilmRepository extends JdbcBaseRepository<Film> implements LikeStorage, DeleteStorage, FilmStorage {
+public class JdbcFilmRepository extends JdbcBaseRepository<Film> implements FilmRepository {
 
     private final RowMapper<Genre> genreRowMapper;
     private final ResultSetExtractor<Map<Long, LinkedHashSet<Genre>>> filmsGenresExtractor;
@@ -88,13 +86,7 @@ public class JdbcFilmRepository extends JdbcBaseRepository<Film> implements Like
                  order by f.film_Id
                 """;
         List<Film> films = jdbc.query(sqlFilms, rowMapper);
-        if (films.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        getGenresOfFilms(films);
-        getDirectorsOfFilms(films);
-
+        fillReferenceFields(films);
         return films;
     }
 
@@ -200,14 +192,7 @@ public class JdbcFilmRepository extends JdbcBaseRepository<Film> implements Like
                                      JOIN MPA M ON F.MPA_ID = M.MPA_ID;
                     """;
         Collection<Film> films = jdbc.query(sql, filmsParams, rowMapper);
-
-        if (films.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        getGenresOfFilms(films);
-        getDirectorsOfFilms(films);
-
+        fillReferenceFields(films);
         return films;
     }
 
@@ -267,14 +252,7 @@ public class JdbcFilmRepository extends JdbcBaseRepository<Film> implements Like
         }
 
         Collection<Film> films = jdbc.query(sqlFilms, Map.of("directorId", directorId), rowMapper);
-
-        if (films.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        getGenresOfFilms(films);
-        getDirectorsOfFilms(films);
-
+        fillReferenceFields(films);
         return films;
     }
 
@@ -315,6 +293,71 @@ public class JdbcFilmRepository extends JdbcBaseRepository<Film> implements Like
     }
 
     @Override
+    public Collection<Film> searchByDirector(String query) {
+        String sql = """
+                SELECT f.film_Id, f.name, f.description, f.release_date, f.duration, f.mpa_id, m.mpa_name,
+                       (SELECT count(*) FROM FILMS_LIKES L WHERE L.FILM_ID = f.FILM_ID) count_likes
+                FROM directors d JOIN films_directors fd ON fd.director_id = d.director_id
+                JOIN films f ON f.film_id = fd.film_id
+                JOIN MPA m ON f.mpa_id = m.mpa_id
+                WHERE LOWER(d.director_name) LIKE LOWER(:query)
+                ORDER BY count_likes
+                """;
+        Collection<Film> films = jdbc.query(sql, Map.of("query", formatQuery(query)), rowMapper);
+        fillReferenceFields(films);
+        return films;
+    }
+
+    @Override
+    public Collection<Film> searchByTitle(String query) {
+        String sql = """
+                SELECT f.film_Id, f.name, f.description, f.release_date, f.duration, f.mpa_id, m.mpa_name,
+                       (SELECT count(*) FROM FILMS_LIKES L WHERE L.FILM_ID = f.FILM_ID) count_likes
+                FROM films f
+                JOIN MPA m ON f.mpa_id = m.mpa_id
+                WHERE LOWER(f.name) LIKE LOWER(:query)
+                ORDER BY count_likes
+                """;
+        Collection<Film> films = jdbc.query(sql, Map.of("query", formatQuery(query)), rowMapper);
+        fillReferenceFields(films);
+        return films;
+    }
+
+    @Override
+    public Collection<Film> searchByDirectorTitleBoth(String query) {
+        String sql = """
+                SELECT *
+                FROM (
+                        SELECT f.film_Id, f.name, f.description, f.release_date, f.duration, f.mpa_id, m.mpa_name,
+                               (SELECT count(*) FROM FILMS_LIKES L WHERE L.FILM_ID = f.FILM_ID) count_likes
+                        FROM films f JOIN MPA m ON f.mpa_id = m.mpa_id
+                        WHERE LOWER(f.name) LIKE LOWER(:query)
+                        union
+                        SELECT f.film_Id, f.name, f.description, f.release_date, f.duration, f.mpa_id, m.mpa_name,
+                               (SELECT count(*) FROM FILMS_LIKES L WHERE L.FILM_ID = f.FILM_ID) count_likes
+                        FROM directors d JOIN films_directors fd ON fd.director_id = d.director_id
+                        JOIN films f ON f.film_id = fd.film_id
+                        JOIN MPA m ON f.mpa_id = m.mpa_id
+                        WHERE LOWER(d.director_name) LIKE LOWER(:query)
+                    )
+                ORDER BY count_likes
+                """;
+        Collection<Film> films = jdbc.query(sql, Map.of("query", formatQuery(query)), rowMapper);
+        fillReferenceFields(films);
+        return films;
+    }
+
+    private void fillReferenceFields(Collection<Film> films) {
+        if (!films.isEmpty()) {
+            getGenresOfFilms(films);
+            getDirectorsOfFilms(films);
+        }
+    }
+
+    private String formatQuery(String query) {
+        return "%" + query + "%";
+    }
+
     public Collection<Film> getCommonFilmsByUserIdAndFriendId(Long userId, Long friendId) {
         MapSqlParameterSource filmsParams = new MapSqlParameterSource();
         filmsParams.addValue("user_id", userId);
