@@ -171,8 +171,9 @@ public class JdbcFilmRepository extends JdbcBaseRepository<Film> implements Film
 
         MapSqlParameterSource filmsParams = new MapSqlParameterSource();
         filmsParams.addValue("count", count);
-        filmsParams.addValue("year", year != null ? year : "%");
-        filmsParams.addValue("genre_id", genreId != null ? genreId : "%");
+        //filmsParams.addValue("year", year != null ? year : "%");
+        filmsParams.addValue("year", year);
+        filmsParams.addValue("genre_id", genreId);
 
         String sql = """
                 SELECT FILM_ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, F.MPA_ID,
@@ -180,16 +181,17 @@ public class JdbcFilmRepository extends JdbcBaseRepository<Film> implements Film
                                     FROM FILMS F JOIN
                                     (SELECT TOP_FILM_ID, COUNT_LIKES
                                      FROM
-                                        (SELECT fl.FILM_ID TOP_FILM_ID, COUNT(*) COUNT_LIKES
-                                         FROM FILMS_LIKES fl
-                                         LEFT JOIN FILMS ff ON fl.FILM_ID = ff.FILM_ID
-                                         LEFT JOIN FILMS_GENRES fg ON fl.FILM_ID = fg.FILM_ID
-                                         WHERE EXTRACT(YEAR FROM ff.RELEASE_DATE) LIKE :year AND fg.GENRE_ID LIKE :genre_id
-                                         GROUP BY fl.FILM_ID
+                                        (SELECT ff.FILM_ID TOP_FILM_ID, COUNT(*) COUNT_LIKES
+                                         FROM FILMS ff
+                                         LEFT JOIN FILMS_LIKES fl ON fl.FILM_ID = ff.FILM_ID
+                                         LEFT JOIN FILMS_GENRES fg ON fl.FILM_ID = fg.FILM_ID AND fg.GENRE_ID = :genre_id
+                                         WHERE (EXTRACT(YEAR FROM ff.RELEASE_DATE) = :year OR :year IS NULL)
+                                         GROUP BY ff.FILM_ID
                                          ORDER BY COUNT_LIKES DESC
                                          )
                                      LIMIT :count) T ON F.FILM_ID = T.TOP_FILM_ID
-                                     JOIN MPA M ON F.MPA_ID = M.MPA_ID;
+                                     JOIN MPA M ON F.MPA_ID = M.MPA_ID
+                                      ORDER BY COUNT_LIKES DESC;
                     """;
         Collection<Film> films = jdbc.query(sql, filmsParams, rowMapper);
         fillReferenceFields(films);
