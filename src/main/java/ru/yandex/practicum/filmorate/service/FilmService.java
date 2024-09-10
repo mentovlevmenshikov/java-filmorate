@@ -83,6 +83,6 @@ public class FilmService extends ModelService<Film> {
     }
 
     public Set<Film> getLikedFilms(long userId) {
-        return likeStorage.getLikedFilmsByUser(userId);
+        return filmRepository.getLikedFilmsByUser(userId);
     }
 }
