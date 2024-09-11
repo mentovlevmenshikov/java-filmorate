@@ -96,7 +96,7 @@ public class ReviewService extends ModelService<Review> {
 
     public Review update(Review model) {
         Review review = repository.update(model);
-        eventFeedService.addEvent(model.getUserId(), EventType.REVIEW, EventOperation.UPDATE, model.getReviewId());
+        eventFeedService.addEvent(review.getUserId(), EventType.REVIEW, EventOperation.UPDATE, review.getReviewId());
         return review;
     }
 
