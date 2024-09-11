@@ -14,6 +14,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.FilmRepository;
+import org.springframework.dao.DuplicateKeyException;
 
 import java.util.*;
 
@@ -157,7 +158,11 @@ public class JdbcFilmRepository extends JdbcBaseRepository<Film> implements Film
     @Override
     public void addLike(Film film, User user) {
         String sqlQuery = "INSERT INTO films_likes (film_id, user_id) VALUES (:film_id, :user_id)";
-        jdbc.update(sqlQuery, Map.of("film_id", film.getId(), "user_id", user.getId()));
+        try {
+            jdbc.update(sqlQuery, Map.of("film_id", film.getId(), "user_id", user.getId()));
+        } catch (DuplicateKeyException exception) {
+            log.warn("User {} already liked film {}", user.getId(), film.getId());
+        }
     }
 
     @Override
@@ -302,7 +307,7 @@ public class JdbcFilmRepository extends JdbcBaseRepository<Film> implements Film
                 JOIN films f ON f.film_id = fd.film_id
                 JOIN MPA m ON f.mpa_id = m.mpa_id
                 WHERE LOWER(d.director_name) LIKE LOWER(:query)
-                ORDER BY count_likes
+                ORDER BY count_likes desc
                 """;
         Collection<Film> films = jdbc.query(sql, Map.of("query", formatQuery(query)), rowMapper);
         fillReferenceFields(films);
@@ -317,7 +322,7 @@ public class JdbcFilmRepository extends JdbcBaseRepository<Film> implements Film
                 FROM films f
                 JOIN MPA m ON f.mpa_id = m.mpa_id
                 WHERE LOWER(f.name) LIKE LOWER(:query)
-                ORDER BY count_likes
+                ORDER BY count_likes desc
                 """;
         Collection<Film> films = jdbc.query(sql, Map.of("query", formatQuery(query)), rowMapper);
         fillReferenceFields(films);
@@ -341,7 +346,7 @@ public class JdbcFilmRepository extends JdbcBaseRepository<Film> implements Film
                         JOIN MPA m ON f.mpa_id = m.mpa_id
                         WHERE LOWER(d.director_name) LIKE LOWER(:query)
                     )
-                ORDER BY count_likes
+                ORDER BY count_likes desc
                 """;
         Collection<Film> films = jdbc.query(sql, Map.of("query", formatQuery(query)), rowMapper);
         fillReferenceFields(films);
