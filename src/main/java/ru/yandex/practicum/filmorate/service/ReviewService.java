@@ -81,10 +81,10 @@ public class ReviewService extends ModelService<Review> {
     }*/
    public Review create(Review model) {
        Review  review = null;
-       if(model.getContent() == null) {
+       if (model.getContent() == null) {
            throw new ValidationException("Content должен быть указан.");
        }
-       if(model.getIsPositive() == null) {
+       if (model.getIsPositive() == null) {
            throw new ValidationException("IsPositive должен быть указан.");
        }
        if (checkDataReview(model)) {
