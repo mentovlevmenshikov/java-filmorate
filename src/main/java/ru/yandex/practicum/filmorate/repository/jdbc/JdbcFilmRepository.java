@@ -182,21 +182,24 @@ public class JdbcFilmRepository extends JdbcBaseRepository<Film> implements Film
         String sql = """
                 SELECT FILM_ID, NAME, DESCRIPTION, RELEASE_DATE, DURATION, F.MPA_ID,
                                     M.MPA_NAME, T.COUNT_LIKES
-                                    FROM FILMS F JOIN
+                                    FROM FILMS F LEFT JOIN
                                     (SELECT TOP_FILM_ID, COUNT_LIKES
                                      FROM
                                         (SELECT ff.FILM_ID TOP_FILM_ID, COUNT(*) COUNT_LIKES
                                          FROM FILMS ff
-                                         LEFT JOIN FILMS_LIKES fl ON fl.FILM_ID = ff.FILM_ID
-                                         LEFT JOIN FILMS_GENRES fg ON fl.FILM_ID = fg.FILM_ID AND fg.GENRE_ID = :genre_id
+                                         JOIN FILMS_LIKES fl ON fl.FILM_ID = ff.FILM_ID
+                                         JOIN FILMS_GENRES fg ON fl.FILM_ID = fg.FILM_ID AND fg.GENRE_ID = :genre_id OR :genre_id IS NULL
                                          WHERE (EXTRACT(YEAR FROM ff.RELEASE_DATE) = :year OR :year IS NULL)
                                          GROUP BY ff.FILM_ID
                                          ORDER BY COUNT_LIKES DESC
                                          )
-                                     LIMIT :count) T ON F.FILM_ID = T.TOP_FILM_ID
+                                     ) T ON F.FILM_ID = T.TOP_FILM_ID
                                      JOIN MPA M ON F.MPA_ID = M.MPA_ID
-                                      ORDER BY COUNT_LIKES DESC;
-                    """;
+                                     WHERE (:genre_id IS NULL OR :genre_id IS NOT NULL AND COUNT_LIKES IS NOT NULL)
+                                     AND (:year IS NULL OR :year IS NOT NULL AND COUNT_LIKES IS NOT NULL)
+                                     ORDER BY COUNT_LIKES DESC
+                                     LIMIT :count;
+                """;
         Collection<Film> films = jdbc.query(sql, filmsParams, rowMapper);
         fillReferenceFields(films);
         return films;
