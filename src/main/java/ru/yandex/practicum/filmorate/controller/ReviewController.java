@@ -11,6 +11,7 @@ import ru.yandex.practicum.filmorate.model.validator.Update;
 import ru.yandex.practicum.filmorate.service.ReviewService;
 
 import java.util.Collection;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/reviews")
@@ -22,9 +23,9 @@ public class ReviewController {
     @GetMapping()
     public Collection<Review> getReviewsCount(@RequestParam(required = false) Integer filmId, @RequestParam(defaultValue = "10", required = false) Integer count) {
         log.info("Получение отзывов по фильму {} в кол-ве: {}", filmId, count);
-        Collection<Review> review = reviewService.getReviews(filmId, count);
+        Collection<Review> review = reviewService.getReviews(Objects.requireNonNullElse(filmId, 0), count);
         log.info("Выбрано отзывов по фильмову {}", filmId);
-        return reviewService.getReviews(filmId, count);
+        return review;
     }
 
     @GetMapping("/{id}")

@@ -67,26 +67,24 @@ public class JdbcReviewRepository extends JdbcBaseRepository<Review> implements 
 
         jdbc.update(sqlInsert, reviewParams, keyHolder);
         review.setReviewId(Objects.requireNonNull(keyHolder.getKey()).longValue());
+        Review newReview = getById(review.getReviewId()).get();
 
-        return review;
+        return newReview;
     }
 
     @Override
     public Review update(Review review) {
-        String sqlUpdate = " UPDATE REVIEWS SET CONTENT = :content, ISPOSITIVE = :isPositive, " +
-                " USER_ID = :user_id, FILM_ID = :film_id" +
+        String sqlUpdate = " UPDATE REVIEWS SET CONTENT = :content, ISPOSITIVE = :isPositive " +
                 " WHERE REVIEW_ID = :review_id;";
 
         MapSqlParameterSource reviewParams = new MapSqlParameterSource();
         reviewParams.addValue("review_id", review.getReviewId());
-        reviewParams.addValue("film_id", review.getFilmId());
-        reviewParams.addValue("user_id", review.getUserId());
         reviewParams.addValue("content", review.getContent());
         reviewParams.addValue("isPositive", review.getIsPositive());
 
         jdbc.update(sqlUpdate, reviewParams);
 
-        return review;
+        return getById(review.getReviewId()).get();
     }
 
     @Override
@@ -164,18 +162,29 @@ public class JdbcReviewRepository extends JdbcBaseRepository<Review> implements 
 
     @Override
     public Collection<Review> getCountReview(long filmId,int count) {
-        String sqlQuery =  "SELECT r.REVIEW_ID , r.user_id, r.film_id, r.content, r.isPositive, " +
-                           "(SELECT SUM(like_Dislike) FROM REVIEWS_USERS AS RU WHERE RU.review_id = r.review_id) count_likes " +
-                           "FROM reviews AS r WHERE r.film_Id = :film_id " +
-                           "ORDER BY count_likes DESC " +
-                           "LIMIT :count";
+        String sqlQuery = "SELECT r.REVIEW_ID , r.user_id, r.film_id, r.content, r.isPositive, " +
+                "ifNull ((SELECT SUM(like_Dislike) FROM REVIEWS_USERS AS RU WHERE RU.review_id = r.review_id),0) count_likes " +
+                "FROM reviews AS r WHERE r.film_Id = :film_id " +
+                "ORDER BY count_likes DESC " +
+                "LIMIT :count";
 
         MapSqlParameterSource reviewParams = new MapSqlParameterSource();
         reviewParams.addValue("film_id", filmId);
         reviewParams.addValue("count", count);
 
-        Collection<Review> reviews = jdbc.query(sqlQuery,reviewParams, rowMapper);
 
+        String sqlQueryWithoutFilm = "SELECT r.REVIEW_ID , r.user_id, r.film_id, r.content, r.isPositive, " +
+                "ifnull ((SELECT SUM(like_Dislike) FROM REVIEWS_USERS AS RU WHERE RU.review_id = r.review_id),0) count_likes " +
+                " FROM reviews AS r" +
+                " ORDER BY count_likes DESC " +
+                " LIMIT :count";
+        Collection<Review> reviews;
+
+        if (filmId == 0) {
+            reviews = jdbc.query(sqlQueryWithoutFilm, reviewParams, rowMapper);
+        } else {
+            reviews = jdbc.query(sqlQuery, reviewParams, rowMapper);
+        }
         return reviews;
     }
 }

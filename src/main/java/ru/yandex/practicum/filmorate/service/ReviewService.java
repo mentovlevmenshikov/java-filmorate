@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.repository.DeleteStorage;
 import ru.yandex.practicum.filmorate.repository.ModelRepository;
@@ -73,11 +74,25 @@ public class ReviewService extends ModelService<Review> {
                 .orElseThrow(() -> new NotFoundException("Отзыв с id " + id + " не найден"));
     }
 
-    public Review create(Review model) {
+   /* public Review create(Review model) {
         Review review = repository.create(model);
         eventFeedService.addEvent(model.getUserId(), EventType.REVIEW, EventOperation.ADD, model.getReviewId());
         return review;
-    }
+    }*/
+   public Review create(Review model) {
+       Review  review = null;
+       if(model.getContent() == null) {
+           throw new ValidationException("Content должен быть указан.");
+       }
+       if(model.getIsPositive() == null) {
+           throw new ValidationException("IsPositive должен быть указан.");
+       }
+       if (checkDataReview(model)) {
+           review = repository.create(model);
+       }
+       eventFeedService.addEvent(model.getUserId(), EventType.REVIEW, EventOperation.ADD, model.getReviewId());
+       return review;
+   }
 
     public Review update(Review model) {
         Review review = repository.update(model);
