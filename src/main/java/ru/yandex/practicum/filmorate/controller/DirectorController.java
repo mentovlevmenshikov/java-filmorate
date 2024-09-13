@@ -31,6 +31,7 @@ public class DirectorController extends Controller<Director> {
         this.directorService = directorService;
     }
 
+    @Override
     @GetMapping
     public Collection<Director> getAll() {
         log.info("Запрос всех режиссеров");
@@ -39,6 +40,7 @@ public class DirectorController extends Controller<Director> {
         return allDirectors;
     }
 
+    @Override
     @GetMapping("/{id}")
     public Director get(@PathVariable long id) {
         log.info("Запрос режиссера с id: {}", id);
@@ -47,6 +49,7 @@ public class DirectorController extends Controller<Director> {
         return director;
     }
 
+    @Override
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Director create(@RequestBody @Valid Director director) {
@@ -56,6 +59,7 @@ public class DirectorController extends Controller<Director> {
         return created;
     }
 
+    @Override
     @PutMapping
     public Director update(@RequestBody @Validated(Update.class) Director director) {
         log.info("Обновление режиссера: {}", director);

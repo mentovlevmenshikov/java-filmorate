@@ -119,4 +119,29 @@ public class JdbcUserRepository extends JdbcBaseRepository<User> implements User
                 """;
         return jdbc.query(sql, Map.of("user_id", userId, "other_user_id", otherUserId), rowMapper);
     }
+
+
+    @Override
+    public User getMostSimilarUserByLikeFilm(User user) {
+        String sql = """
+                SELECT user_id, email, login, name, birthday
+                FROM users
+                WHERE user_id in (
+                                SELECT  l.user_id
+                                FROM films_likes l
+                                WHERE l.film_id in (SELECT fu.film_id FROM films_likes fu WHERE fu.user_id = :user_id)
+                                  AND l.user_id != :user_id
+                                GROUP BY user_id
+                                ORDER BY COUNT(*) DESC
+                                LIMIT 1
+                                )
+                                """;
+        try {
+            user = jdbc.queryForObject(sql, Map.of("user_id", user.getId()), rowMapper);
+            return user;
+        } catch (EmptyResultDataAccessException e) {
+            log.warn("Most simillar user not found for user with id {}", user.getId());
+            return null;
+        }
+    }
 }

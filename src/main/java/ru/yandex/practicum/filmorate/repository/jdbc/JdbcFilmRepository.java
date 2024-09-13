@@ -175,7 +175,6 @@ public class JdbcFilmRepository extends JdbcBaseRepository<Film> implements Film
 
         MapSqlParameterSource filmsParams = new MapSqlParameterSource();
         filmsParams.addValue("count", count);
-        //filmsParams.addValue("year", year != null ? year : "%");
         filmsParams.addValue("year", year);
         filmsParams.addValue("genre_id", genreId);
 

@@ -1,34 +1,34 @@
 package ru.yandex.practicum.filmorate.service;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.repository.ModelRepository;
-import java.util.*;
+import ru.yandex.practicum.filmorate.repository.FilmRepository;
+import ru.yandex.practicum.filmorate.repository.UserRepository;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
+@RequiredArgsConstructor
 @Service
 @Slf4j
 public class RecommendationService {
 
     private final FilmService filmService;
-    private final ModelRepository<User> userRepository;
-
-
-    public RecommendationService(FilmService filmService, ModelRepository<User> userRepository) {
-        this.filmService = filmService;
-        this.userRepository = userRepository;
-    }
+    private final UserRepository userRepository;
+    private final FilmRepository filmRepository;
 
     public Collection<Film> getRecommendations(long userId) {
         log.info("Получение рекомендаций для пользователя с id {}", userId);
         User user = userRepository.getById(userId)
                 .orElseThrow(() -> new NotFoundException("User not found with id " + userId));
         log.info("Пользователь найден: {}", user);
-        Collection<User> allUsers = userRepository.getAll();
-        log.info("Получены все пользователи: {}", allUsers);
-        User similarUser = findMostSimilarUser(user, allUsers);
+        User similarUser = findMostSimilarUser(user);
         if (similarUser == null) {
             log.info("Нет похожего пользователя для рекомендаций");
             return Collections.emptyList();
@@ -37,22 +37,10 @@ public class RecommendationService {
         return findFilmsToRecommend(user, similarUser);
     }
 
-
-    private User findMostSimilarUser(User currentUser, Collection<User> allUsers) {
+    private User findMostSimilarUser(User currentUser) {
         log.info("Поиск наиболее похожего пользователя для пользователя с id {}", currentUser.getId());
-        User mostSimilarUser = null;
-        int maxCommonLikes = 0;
-        for (User otherUser : allUsers) {
-            if (currentUser.getId() != otherUser.getId()) {
-                int commonLikes = countCommonLikes(currentUser, otherUser);
-                log.info("Количество общих лайков между пользователями {} и {}: {}", currentUser.getId(), otherUser.getId(), commonLikes);
-                if (commonLikes > maxCommonLikes) {
-                    maxCommonLikes = commonLikes;
-                    mostSimilarUser = otherUser;
-                }
-            }
-        }
-        log.info("Найден наиболее похожий пользователь: {}", mostSimilarUser);
+        User mostSimilarUser = userRepository.getMostSimilarUserByLikeFilm(currentUser);
+        log.info("Найден наиболее похожий пользователь с id: {}", mostSimilarUser);
         return mostSimilarUser;
     }
 

@@ -74,11 +74,6 @@ public class ReviewService extends ModelService<Review> {
                 .orElseThrow(() -> new NotFoundException("Отзыв с id " + id + " не найден"));
     }
 
-   /* public Review create(Review model) {
-        Review review = repository.create(model);
-        eventFeedService.addEvent(model.getUserId(), EventType.REVIEW, EventOperation.ADD, model.getReviewId());
-        return review;
-    }*/
    public Review create(Review model) {
        Review  review = null;
        if (model.getContent() == null) {

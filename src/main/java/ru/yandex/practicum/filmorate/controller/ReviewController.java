@@ -21,7 +21,7 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     @GetMapping()
-    public Collection<Review> getReviewsCount(@RequestParam(required = false) Integer filmId, @RequestParam(defaultValue = "10", required = false) Integer count) {
+    public Collection<Review> getReviewsCount(@RequestParam(required = false) Integer filmId, @RequestParam(defaultValue = "10") Integer count) {
         log.info("Получение отзывов по фильму {} в кол-ве: {}", filmId, count);
         Collection<Review> review = reviewService.getReviews(Objects.requireNonNullElse(filmId, 0), count);
         log.info("Выбрано отзывов по фильмову {}", filmId);
@@ -30,7 +30,6 @@ public class ReviewController {
 
     @GetMapping("/{id}")
     public Review get(@PathVariable long id) {
-
         log.info("Запрос отзыва по id: {}", id);
         Review review = reviewService.get(id);
         log.info("Возврат отзыва: {}", review);

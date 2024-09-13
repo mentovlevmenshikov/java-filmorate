@@ -16,7 +16,6 @@ public class FilmService extends ModelService<Film> {
     private final UserRepository userRepository;
     private final FilmRepository filmRepository;
     private final ModelRepository<Director> directorRepository;
-    private final List<String> sortFeatures = List.of("year", "likes");
     private final EventFeedService eventFeedService;
 
     public FilmService(FilmRepository filmRepository, UserRepository userRepository,
@@ -60,6 +59,7 @@ public class FilmService extends ModelService<Film> {
         final Director director = directorRepository.getById(directorId)
                 .orElseThrow(() -> new NotFoundException("Director not found with " + directorId));
 
+        final List<String> sortFeatures = List.of("year", "likes");
         if (sortBy == null || sortBy.isBlank()) {
             sortBy = sortFeatures.getFirst();
         }

@@ -55,6 +55,7 @@ public class FilmController extends Controller<Film> {
         return filmCreated;
     }
 
+    @Override
     @PutMapping
     public Film update(@RequestBody @Validated(Update.class) Film film) {
         log.info("Обновление фильма: {}", film);
