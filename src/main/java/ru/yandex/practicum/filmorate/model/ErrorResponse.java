@@ -12,7 +12,7 @@ import java.io.Writer;
 @AllArgsConstructor
 @RequiredArgsConstructor
 public class ErrorResponse {
-    private final String message;
+    private final String error;
     private String stackTrace;
 
     public ErrorResponse(Throwable exception, boolean showStackTrace) {

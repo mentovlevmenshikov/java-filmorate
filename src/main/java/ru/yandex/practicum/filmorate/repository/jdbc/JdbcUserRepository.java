@@ -9,7 +9,7 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.repository.FriendStorage;
+import ru.yandex.practicum.filmorate.repository.UserRepository;
 
 import java.util.Collection;
 import java.util.Map;
@@ -18,7 +18,7 @@ import java.util.Optional;
 
 @Repository
 @Slf4j
-public class JdbcUserRepository extends JdbcBaseRepository<User> implements FriendStorage  {
+public class JdbcUserRepository extends JdbcBaseRepository<User> implements UserRepository {
 
     public JdbcUserRepository(RowMapper<User> userRowMapper) {
         super(userRowMapper);
@@ -79,6 +79,17 @@ public class JdbcUserRepository extends JdbcBaseRepository<User> implements Frie
     }
 
     @Override
+    public void delete(long id) {
+        String sqlDelete = "DELETE FROM users WHERE user_id = :id";
+        MapSqlParameterSource params = new MapSqlParameterSource("id", id);
+        try {
+            jdbc.update(sqlDelete, params);
+        } catch (EmptyResultDataAccessException e) {
+            log.warn("User with id {} not found", id);
+        }
+    }
+
+    @Override
     public void addFriend(User user, User friend) {
         String sql = "INSERT INTO friends (user_id, friend_id, status) VALUES (:user_id, :friend_id, :status);";
         jdbc.update(sql, Map.of("user_id", user.getId(), "friend_id", friend.getId(), "status", 0));
@@ -107,5 +118,30 @@ public class JdbcUserRepository extends JdbcBaseRepository<User> implements Frie
                 WHERE f1.user_id = :user_id and f2.user_id = :other_user_id
                 """;
         return jdbc.query(sql, Map.of("user_id", userId, "other_user_id", otherUserId), rowMapper);
+    }
+
+
+    @Override
+    public User getMostSimilarUserByLikeFilm(User user) {
+        String sql = """
+                SELECT user_id, email, login, name, birthday
+                FROM users
+                WHERE user_id in (
+                                SELECT  l.user_id
+                                FROM films_likes l
+                                WHERE l.film_id in (SELECT fu.film_id FROM films_likes fu WHERE fu.user_id = :user_id)
+                                  AND l.user_id != :user_id
+                                GROUP BY user_id
+                                ORDER BY COUNT(*) DESC
+                                LIMIT 1
+                                )
+                                """;
+        try {
+            user = jdbc.queryForObject(sql, Map.of("user_id", user.getId()), rowMapper);
+            return user;
+        } catch (EmptyResultDataAccessException e) {
+            log.warn("Most simillar user not found for user with id {}", user.getId());
+            return null;
+        }
     }
 }

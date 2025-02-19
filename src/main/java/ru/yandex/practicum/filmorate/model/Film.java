@@ -10,6 +10,7 @@ import ru.yandex.practicum.filmorate.model.validator.RealiseDateConstraint;
 import ru.yandex.practicum.filmorate.model.validator.Update;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 
@@ -33,8 +34,11 @@ public class Film implements Model {
     private Long duration;
     @NotNull
     private MPA mpa;
+    @Builder.Default
     private LinkedHashSet<Genre> genres = new LinkedHashSet<>();
     private int countLikes;
+    @Builder.Default
+    private HashSet<Director> directors = new HashSet<>();
 
     @Override
     public boolean equals(Object o) {
